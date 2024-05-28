@@ -1,6 +1,7 @@
 from dotenv import load_dotenv, find_dotenv
 import os
 import sentry_sdk
+from sqlalchemy.ext.declarative import declarative_base
 
 # Load environment variables from the .env file
 load_dotenv(find_dotenv())
@@ -8,7 +9,6 @@ load_dotenv(find_dotenv())
 class Config:
     """
     Configuration class to load and provide access to database configuration variables.
-
     Attributes are loaded from environment variables.
     """
     DB_NAME = os.getenv('DB_NAME')
@@ -25,13 +25,10 @@ class Config:
     def get_db_uri(user=None, password=None):
         """
         Constructs a database URI for the given user and password.
-        
         If no user or password is provided, the default database user and password are used.
-
         Args:
             user (str): The database user.
             password (str): The database user's password.
-
         Returns:
             str: The constructed database URI.
         """
@@ -45,7 +42,7 @@ class Config:
         Validates that all required environment variables are set.
         """
         required_vars = [
-            'DB_NAME', 'DB_USER', 'DB_PASSWORD', 
+            'DB_NAME', 'DB_USER', 'DB_PASSWORD',
             'DB_HOST', 'DB_PORT', 'ADMIN_DB_USER', 'ADMIN_DB_PASSWORD', 'SENTRY_DSN'
         ]
         for var in required_vars:
@@ -54,3 +51,6 @@ class Config:
 
 # Initialize Sentry
 sentry_sdk.init(dsn=Config.SENTRY_DSN, traces_sample_rate=1.0)
+
+# Define the Base class for SQLAlchemy models
+Base = declarative_base()
