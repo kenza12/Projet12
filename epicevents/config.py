@@ -17,24 +17,27 @@ class Config:
     DB_HOST = os.getenv('DB_HOST')
     DB_PORT = os.getenv('DB_PORT')
 
+    TEST_DB_NAME = os.getenv('TEST_DB_NAME')
     ADMIN_DB_USER = os.getenv('ADMIN_DB_USER')
     ADMIN_DB_PASSWORD = os.getenv('ADMIN_DB_PASSWORD')
     SENTRY_DSN = os.getenv('SENTRY_DSN')
 
     @staticmethod
-    def get_db_uri(user=None, password=None):
+    def get_db_uri(user=None, password=None, test=False):
         """
         Constructs a database URI for the given user and password.
         If no user or password is provided, the default database user and password are used.
         Args:
             user (str): The database user.
             password (str): The database user's password.
+            test (bool): Use test database if True.
         Returns:
             str: The constructed database URI.
         """
         user = user or Config.DB_USER
         password = password or Config.DB_PASSWORD
-        return f"mysql+mysqlconnector://{user}:{password}@{Config.DB_HOST}:{Config.DB_PORT}/{Config.DB_NAME}"
+        db_name = Config.TEST_DB_NAME if test else Config.DB_NAME
+        return f"mysql+mysqlconnector://{user}:{password}@{Config.DB_HOST}:{Config.DB_PORT}/{db_name}"
 
     @staticmethod
     def validate():

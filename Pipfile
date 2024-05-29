@@ -8,6 +8,7 @@ mysql-connector-python = "*"
 sqlalchemy = "*"
 python-dotenv = "*"
 sentry-sdk = "*"
+pytest = "*"
 
 [dev-packages]
 
