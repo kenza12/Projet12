@@ -9,6 +9,13 @@ sqlalchemy = "*"
 python-dotenv = "*"
 sentry-sdk = "*"
 pytest = "*"
+argon2-cffi = "*"
+click = "*"
+rich = "*"
+pyjwt = "*"
+cryptography = "*"
+keyring = "*"
+"keyrings.alt" = "*"
 
 [dev-packages]
 

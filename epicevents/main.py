@@ -1,13 +1,7 @@
-from utils.database_initializer import DatabaseInitializer
-import sentry_sdk
+from controllers.main_controller import MainController
 
 def main():
-    try:
-        initializer = DatabaseInitializer()
-        initializer.initialize()
-    except Exception as e:
-        sentry_sdk.capture_exception(e)
-        print(f"Error during database initialization: {e}")
+    MainController.start_cli()
 
 if __name__ == "__main__":
     main()
