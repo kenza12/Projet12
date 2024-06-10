@@ -3,8 +3,24 @@ import os
 import sentry_sdk
 from sqlalchemy.ext.declarative import declarative_base
 
-# Load environment variables from the .env file
-load_dotenv(find_dotenv())
+
+def reload_environment():
+    """
+    Load environment variables
+    """
+    # Clear any existing environment variables
+    for key in list(os.environ.keys()):
+        if key in os.environ:
+            del os.environ[key]
+    
+    # Load environment variables from the .env file
+    load_dotenv(find_dotenv())
+
+# Load environment variables
+reload_environment()
+
+# Service name for keyring
+SERVICE_NAME = "EpicEvents"
 
 class Config:
     """
@@ -27,10 +43,12 @@ class Config:
         """
         Constructs a database URI for the given user and password.
         If no user or password is provided, the default database user and password are used.
+
         Args:
             user (str): The database user.
             password (str): The database user's password.
             test (bool): Use test database if True.
+
         Returns:
             str: The constructed database URI.
         """
