@@ -1,4 +1,3 @@
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine, inspect
 from config import Config, SERVICE_NAME
 from models.user import User
@@ -12,6 +11,10 @@ import os
 from dotenv import load_dotenv
 from cryptography.fernet import Fernet
 import keyring
+from controllers.client_controller import ClientController
+from controllers.contract_controller import ContractController
+from controllers.event_controller import EventController
+from utils.session_manager import get_session_root
 
 load_dotenv()
 
@@ -44,8 +47,8 @@ class MainController:
         Returns True if the database is initialized, otherwise False.
         """
         try:
-            engine = create_engine(Config.get_db_uri(Config.ADMIN_DB_USER, Config.ADMIN_DB_PASSWORD))
-            inspector = inspect(engine)
+            session = get_session_root()
+            inspector = inspect(session.bind)
             return 'User' in inspector.get_table_names()
         except Exception as e:
             sentry_sdk.capture_exception(e)
@@ -62,9 +65,7 @@ class MainController:
             dict: JWT and refresh tokens if authentication is successful, otherwise None.
         """
         try:
-            engine = create_engine(Config.get_db_uri(Config.ADMIN_DB_USER, Config.ADMIN_DB_PASSWORD))
-            Session = sessionmaker(bind=engine)
-            session = Session()
+            session = get_session_root()
 
             if UserController.authenticate_user(session, username, password):
                 user = session.query(User).filter_by(username=username).first()
@@ -86,9 +87,7 @@ class MainController:
         Returns True if user creation was successful, otherwise False.
         """
         try:
-            engine = create_engine(Config.get_db_uri(Config.ADMIN_DB_USER, Config.ADMIN_DB_PASSWORD))
-            Session = sessionmaker(bind=engine)
-            session = Session()
+            session = get_session_root()
 
             departments = {
                 "Commercial": session.query(Department).filter_by(name="Commercial").first().id,
@@ -203,7 +202,52 @@ class MainController:
         except Exception as e:
             sentry_sdk.capture_exception(e)
             return str(e)
-    
+
+    @staticmethod
+    def get_clients() -> list:
+        """
+        Retrieves all clients if the user is authenticated and authorized.
+        Returns:
+            list: List of Client objects or an empty list if not authorized.
+        """
+        username = keyring.get_password(SERVICE_NAME, "current_user")
+        if not username:
+            return []
+        tokens = TokenManager.load_tokens(username)
+        if tokens and 'token' in tokens and 'key' in tokens:
+            return ClientController.get_all_clients(tokens['token'])
+        return []
+
+    @staticmethod
+    def get_contracts() -> list:
+        """
+        Retrieves all contracts if the user is authenticated and authorized.
+        Returns:
+            list: List of Contract objects or an empty list if not authorized.
+        """
+        username = keyring.get_password(SERVICE_NAME, "current_user")
+        if not username:
+            return []
+        tokens = TokenManager.load_tokens(username)
+        if tokens and 'token' in tokens and 'key' in tokens:
+            return ContractController.get_all_contracts(tokens['token'])
+        return []
+
+    @staticmethod
+    def get_events() -> list:
+        """
+        Retrieves all events if the user is authenticated and authorized.
+        Returns:
+            list: List of Event objects or an empty list if not authorized.
+        """
+        username = keyring.get_password(SERVICE_NAME, "current_user")
+        if not username:
+            return []
+        tokens = TokenManager.load_tokens(username)
+        if tokens and 'token' in tokens and 'key' in tokens:
+            return EventController.get_all_events(tokens['token'])
+        return []
+
     @staticmethod
     def start_cli():
         """

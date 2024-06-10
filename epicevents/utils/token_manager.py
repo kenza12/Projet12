@@ -86,3 +86,11 @@ class TokenManager:
         except Exception as e:
             sentry_sdk.capture_exception(e)
             raise
+
+    @staticmethod
+    def load_key() -> str:
+        username = keyring.get_password(SERVICE_NAME, "current_user")
+        if username:
+            key = keyring.get_password(SERVICE_NAME, f"{username}_key")
+            return key
+        return None
