@@ -86,6 +86,9 @@ def logout():
 
 @cli.command()
 def get_clients():
+    """
+    Retrieve and display all clients if the user is authenticated and authorized.
+    """
     clients = MainController.get_clients()
     if clients:
         for client in clients:
@@ -95,6 +98,9 @@ def get_clients():
 
 @cli.command()
 def get_contracts():
+    """
+    Retrieve and display all contracts if the user is authenticated and authorized.
+    """
     contracts = MainController.get_contracts()
     if contracts:
         for contract in contracts:
@@ -104,12 +110,16 @@ def get_contracts():
 
 @cli.command()
 def get_events():
+    """
+    Retrieve and display all events if the user is authenticated and authorized.
+    """
     events = MainController.get_events()
     if events:
         for event in events:
             console.print(f"Event: {event.event_name}, Location: {event.location}")
     else:
         console.print("[bold red]No events found or you are not authorized to view them.[/bold red]")
+
 
 def start_cli():
     cli()
