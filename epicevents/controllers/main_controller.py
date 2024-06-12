@@ -2,7 +2,6 @@ from sqlalchemy import create_engine, inspect
 from config import Config, SERVICE_NAME
 from models.user import User
 from models.department import Department
-from utils.permissions import PermissionManager
 from utils.database_initializer import DatabaseInitializer
 from controllers.user_controller import UserController
 from utils.token_manager import TokenManager
@@ -70,8 +69,8 @@ class MainController:
             if UserController.authenticate_user(session, username, password):
                 user = session.query(User).filter_by(username=username).first()
                 key = Fernet.generate_key().decode()
-                token = PermissionManager.generate_token(user, key)
-                refresh_token = PermissionManager.generate_refresh_token(user, key)
+                token = TokenManager.generate_token(user, key)
+                refresh_token = TokenManager.generate_refresh_token(user, key)
                 tokens = {"token": token, "refresh_token": refresh_token, "key": key}
                 TokenManager.save_tokens(username, tokens)
                 return tokens
@@ -150,7 +149,7 @@ class MainController:
             if tokens and 'refresh_token' in tokens and 'key' in tokens:
                 refresh_token = tokens['refresh_token']
                 key = tokens['key']
-                new_token = PermissionManager.refresh_token(refresh_token, key)
+                new_token = TokenManager.refresh_token(refresh_token, key)
                 if new_token:
                     tokens['token'] = new_token
                     TokenManager.save_tokens(username, tokens)
@@ -172,7 +171,7 @@ class MainController:
         """
         tokens = TokenManager.load_tokens(username)
         if tokens and 'token' in tokens and 'key' in tokens:
-            if PermissionManager.is_token_expired(tokens['token'], tokens['key']):
+            if TokenManager.is_token_expired(tokens['token'], tokens['key']):
                 return "expired"
             else:
                 return "active"

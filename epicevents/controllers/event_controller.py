@@ -1,6 +1,5 @@
 from models.event import Event
 import sentry_sdk
-from utils.permissions import PermissionManager
 from utils.token_manager import TokenManager
 from utils.session_manager import get_session
 
@@ -17,7 +16,7 @@ class EventController:
         """
         try:
             key = TokenManager.load_key()
-            payload = PermissionManager.verify_token(token, key)
+            payload = TokenManager.verify_token(token, key)
             if payload:
                 session = get_session()
                 events = session.query(Event).all()
