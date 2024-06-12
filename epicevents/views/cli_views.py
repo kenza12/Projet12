@@ -84,6 +84,43 @@ def logout():
     else:
         console.print(f"[bold red]Error during logout: {result}[/bold red]")
 
+@cli.command()
+def get_clients():
+    """
+    Retrieve and display all clients if the user is authenticated and authorized.
+    """
+    clients = MainController.get_clients()
+    if clients:
+        for client in clients:
+            console.print(f"Client: {client.full_name}, Email: {client.email}")
+    else:
+        console.print("[bold red]No clients found or you are not authorized to view them.[/bold red]")
+
+@cli.command()
+def get_contracts():
+    """
+    Retrieve and display all contracts if the user is authenticated and authorized.
+    """
+    contracts = MainController.get_contracts()
+    if contracts:
+        for contract in contracts:
+            console.print(f"Contract ID: {contract.id}, Client ID: {contract.client_id}, Total Amount: {contract.total_amount}")
+    else:
+        console.print("[bold red]No contracts found or you are not authorized to view them.[/bold red]")
+
+@cli.command()
+def get_events():
+    """
+    Retrieve and display all events if the user is authenticated and authorized.
+    """
+    events = MainController.get_events()
+    if events:
+        for event in events:
+            console.print(f"Event: {event.event_name}, Location: {event.location}")
+    else:
+        console.print("[bold red]No events found or you are not authorized to view them.[/bold red]")
+
+
 def start_cli():
     cli()
 
