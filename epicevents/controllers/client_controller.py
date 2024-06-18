@@ -96,3 +96,22 @@ class ClientController:
         except Exception as e:
             sentry_sdk.capture_exception(e)
             return None
+        
+    @staticmethod
+    def get_commercial_contact_id(client_id: int) -> int:
+        """
+        Retrieve the commercial contact ID based on the client ID.
+        Args:
+            client_id (int): The ID of the client.
+        Returns:
+            int: The commercial contact ID of the client if found, otherwise None.
+        """
+        try:
+            session = get_session()
+            client = session.query(Client).filter_by(id=client_id).first()
+            if client:
+                return client.commercial_contact_id
+            return None
+        except Exception as e:
+            sentry_sdk.capture_exception(e)
+            return None

@@ -307,7 +307,9 @@ class MainController:
         if authorized:
             try:
                 date_created = datetime.now().date()
-                if ContractController.create_contract(token, client_id, user.id, total_amount, amount_due, date_created, signed):
+                # Fetch the commercial_contact_id from the client
+                commercial_contact_id = ClientController.get_commercial_contact_id(client_id)
+                if ContractController.create_contract(client_id, commercial_contact_id, total_amount, amount_due, date_created, signed):
                     return "Contract created successfully."
                 else:
                     return "Failed to create contract. Please check the input data."
@@ -316,6 +318,34 @@ class MainController:
             except Exception as e:
                 sentry_sdk.capture_exception(e)
                 return f"Error creating contract: {e}"
+        else:
+            return "You are not authorized to perform this action."
+
+    @staticmethod
+    def update_contract(contract_id: int, client_id: int = None, total_amount: float = None, amount_due: float = None, signed: bool = None) -> str:
+        """
+        Update an existing contract if the user is authorized.
+        Returns:
+            str: Message indicating the result of the operation.
+        """
+        token, user, authorized = MainController.verify_authentication_and_authorization('update_contract')
+        if authorized:
+            try:
+                if user.department.name == "Commercial":
+                    contract = ContractController.get_contract_by_id(contract_id)
+                    if contract.commercial_contact_id != user.id:
+                        return "You are not authorized to update this contract."
+
+                success = ContractController.update_contract(contract_id, client_id, total_amount, amount_due, signed)
+                if success:
+                    return "Contract updated successfully."
+                else:
+                    return "Failed to update contract. Please check the input data."
+            except ValueError as ve:
+                return f"Validation Error: {ve}"
+            except Exception as e:
+                sentry_sdk.capture_exception(e)
+                return f"Error updating contract: {e}"
         else:
             return "You are not authorized to perform this action."
 

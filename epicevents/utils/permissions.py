@@ -22,7 +22,7 @@ class PermissionManager:
 
     @staticmethod
     def can_update_contract(user: User) -> bool:
-        return user.department.name == "Gestion"
+        return user.department.name in ["Gestion", "Commercial"]
 
     @staticmethod
     def can_create_event(user: User) -> bool:

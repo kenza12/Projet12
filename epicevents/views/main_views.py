@@ -194,15 +194,27 @@ def manage_contracts():
     """
     Submenu for managing contracts.
     """
+    username = MainController.get_current_user()
+    user_role = MainController.get_user_role(username)
+    
     while True:
         console.print("[bold blue]Contract Management[/bold blue]")
-        console.print("1. Create Contract\n2. Update Contract\n3. Return to Main Menu")
+        if user_role == "Gestion":
+            console.print("1. Create Contract\n2. Update Contract\n3. Return to Main Menu")
+        elif user_role == "Commercial":
+            console.print("1. Update Contract\n2. Return to Main Menu")
         choice = input("Enter your choice: ")
         if choice == '1':
-            create_contract()
+            if user_role == "Gestion":
+                create_contract()
+            elif user_role == "Commercial":
+                update_contract()
         elif choice == '2':
-            update_contract()
-        elif choice == '3':
+            if user_role == "Gestion":
+                update_contract()
+            elif user_role == "Commercial":
+                return
+        elif choice == '3' and user_role == "Gestion":
             return
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")

@@ -29,7 +29,24 @@ class ContractController:
             return []
     
     @staticmethod
-    def create_contract(token: str, client_id: int, commercial_contact_id: int, total_amount: float, amount_due: float,
+    def get_contract_by_id(contract_id: int):
+        """
+        Retrieves a contract by its ID.
+        Args:
+            contract_id (int): ID of the contract to retrieve.
+        Returns:
+            Contract: The contract object if found, otherwise None.
+        """
+        try:
+            session = get_session()
+            contract = session.query(Contract).filter_by(id=contract_id).first()
+            return contract
+        except Exception as e:
+            sentry_sdk.capture_exception(e)
+            return None
+    
+    @staticmethod
+    def create_contract(client_id: int, commercial_contact_id: int, total_amount: float, amount_due: float,
                         date_created: str, signed: bool) -> bool:
         """
         Creates a new contract if data is valid.
@@ -51,8 +68,7 @@ class ContractController:
             return False
 
     @staticmethod
-    def update_contract(token: str, contract_id: int, client_id: int = None, commercial_contact_id: int = None,
-                        total_amount: float = None, amount_due: float = None, date_created: str = None, signed: bool = None) -> bool:
+    def update_contract(contract_id: int, client_id: int = None, total_amount: float = None, amount_due: float = None, signed: bool = None) -> bool:
         """
         Updates an existing contract if data is valid.
         """
@@ -64,14 +80,10 @@ class ContractController:
 
             if client_id:
                 contract.client_id = client_id
-            if commercial_contact_id:
-                contract.commercial_contact_id = commercial_contact_id
             if total_amount:
                 contract.total_amount = total_amount
             if amount_due:
                 contract.amount_due = amount_due
-            if date_created and DataValidator.validate_date(date_created):
-                contract.date_created = date_created
             if signed is not None:
                 contract.signed = signed
 
