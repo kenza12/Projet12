@@ -1,11 +1,10 @@
 
 from models.client import Client
-from models.user import User
 import sentry_sdk
 from utils.token_manager import TokenManager
 from utils.session_manager import get_session
 from utils.data_validator import DataValidator
-from utils.permissions import PermissionManager
+from datetime import date
 
 
 class ClientController:
@@ -31,7 +30,7 @@ class ClientController:
             return []
 
     @staticmethod
-    def create_client(token: str, full_name: str, email: str, phone: str, company_name: str, date_created: str, commercial_contact_id: int) -> bool:
+    def create_client(full_name: str, email: str, phone: str, company_name: str, date_created: date, commercial_contact_id: int) -> bool:
         """
         Creates a new client if data is valid.
         """
@@ -47,17 +46,17 @@ class ClientController:
             return True
         except Exception as e:
             sentry_sdk.capture_exception(e)
+            session.rollback()
             return False
 
     @staticmethod
-    def update_client(token: str, client_id: int, full_name: str = None, email: str = None, phone: str = None,
-                      company_name: str = None, last_contact_date: str = None) -> bool:
+    def update_client(client_name: str, full_name: str = None, email: str = None, phone: str = None, company_name: str = None) -> bool:
         """
         Updates an existing client if data is valid.
         """
         try:
             session = get_session()
-            client = session.query(Client).filter_by(id=client_id).first()
+            client = session.query(Client).filter_by(full_name=client_name).first()
             if not client:
                 raise ValueError("Client not found.")
 
@@ -69,13 +68,14 @@ class ClientController:
                 client.phone = phone
             if company_name:
                 client.company_name = company_name
-            if last_contact_date and DataValidator.validate_date(last_contact_date):
-                client.last_contact_date = last_contact_date
+
+            client.last_contact_date = date.today()
 
             session.commit()
             return True
         except Exception as e:
             sentry_sdk.capture_exception(e)
+            session.rollback()
             return False
         
     @staticmethod

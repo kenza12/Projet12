@@ -33,7 +33,7 @@ def initialize():
 
 @cli.command()
 @click.option('--username', prompt='Username', help='The username of the user')
-@click.option('--password', prompt=True, hide_input=True, confirmation_prompt=True, help='The password of the user')
+@click.option('--password', prompt=True, hide_input=True, help='The password of the user')
 def login(username, password):
     """
     Authenticate a user and generate JWT and refresh tokens.

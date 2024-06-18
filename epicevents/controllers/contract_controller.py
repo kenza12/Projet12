@@ -4,7 +4,6 @@ import sentry_sdk
 from utils.token_manager import TokenManager
 from utils.session_manager import get_session
 from utils.data_validator import DataValidator
-from utils.permissions import PermissionManager
 
 
 class ContractController:

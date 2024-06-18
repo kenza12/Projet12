@@ -1,8 +1,10 @@
 import click
 from rich.console import Console
 from controllers.main_controller import MainController
+from controllers.client_controller import ClientController
 
 console = Console()
+
 
 def create_client():
     full_name = input("Full Name: ")
@@ -13,13 +15,12 @@ def create_client():
     console.print(f"[bold green]{result_message}[/bold green]" if "successfully" in result_message else f"[bold red]{result_message}[/bold red]")
 
 def update_client():
-    client_id = input("Client ID: ")
-    full_name = input("Full Name (leave blank to skip): ")
-    email = input("Email (leave blank to skip): ")
-    phone = input("Phone (leave blank to skip): ")
-    company_name = input("Company Name (leave blank to skip): ")
-    last_contact_date = input("Last Contact Date (YYYY-MM-DD, leave blank to skip): ")
-    result_message = MainController.update_client(client_id, full_name, email, phone, company_name, last_contact_date)
+    client_name = input("Client Name: ")
+    full_name = input("New Full Name (leave blank to skip): ")
+    email = input("New Email (leave blank to skip): ")
+    phone = input("New Phone (leave blank to skip): ")
+    company_name = input("New Company Name (leave blank to skip): ")
+    result_message = MainController.update_client(client_name, full_name, email, phone, company_name)
     console.print(f"[bold green]{result_message}[/bold green]" if "successfully" in result_message else f"[bold red]{result_message}[/bold red]")
 
 def get_clients():

@@ -18,6 +18,7 @@ from datetime import datetime
 from utils.permissions import PermissionManager
 from utils.data_validator import DataValidator
 from utils.session_manager import get_session
+from datetime import date
 
 
 load_dotenv()
@@ -502,6 +503,54 @@ class MainController:
                 return []
         else:
             return []
+
+    @staticmethod
+    def create_client(full_name: str, email: str, phone: str, company_name: str) -> str:
+        """
+        Create a new client if the user is authorized.
+        Returns:
+            str: Message indicating the result of the operation.
+        """
+        token, user, authorized = MainController.verify_authentication_and_authorization('create_client')
+        if authorized:
+            try:
+                commercial_contact_id = user.id
+                date_created = date.today()
+                success = ClientController.create_client(full_name, email, phone, company_name, date_created, commercial_contact_id)
+                if success:
+                    return "Client created successfully."
+                else:
+                    return "Failed to create client. Please check the input data."
+            except ValueError as ve:
+                return f"Validation Error: {ve}"
+            except Exception as e:
+                sentry_sdk.capture_exception(e)
+                return f"Error creating client: {e}"
+        else:
+            return "You are not authorized to perform this action."
+
+    @staticmethod
+    def update_client(client_name: str, full_name: str = None, email: str = None, phone: str = None, company_name: str = None) -> str:
+        """
+        Update an existing client if the user is authorized.
+        Returns:
+            str: Message indicating the result of the operation.
+        """
+        token, user, authorized = MainController.verify_authentication_and_authorization('update_client')
+        if authorized:
+            try:
+                success = ClientController.update_client(client_name, full_name, email, phone, company_name)
+                if success:
+                    return "Client updated successfully."
+                else:
+                    return "Failed to update client. Please check the input data."
+            except ValueError as ve:
+                return f"Validation Error: {ve}"
+            except Exception as e:
+                sentry_sdk.capture_exception(e)
+                return f"Error updating client: {e}"
+        else:
+            return "You are not authorized to perform this action."
 
     @staticmethod
     def start_cli():
