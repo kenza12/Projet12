@@ -4,7 +4,8 @@ import sentry_sdk
 from utils.token_manager import TokenManager
 from utils.session_manager import get_session
 from utils.data_validator import DataValidator
-from utils.permissions import PermissionManager
+from sqlalchemy import func
+
 
 class EventController:
     @staticmethod
@@ -106,9 +107,11 @@ class EventController:
             if 'client_id' in filters:
                 query = query.filter(Event.client_id == filters['client_id'])
             if 'date_start' in filters:
-                query = query.filter(Event.event_date_start >= filters['date_start'])
+                date_start = filters['date_start']
+                query = query.filter(func.date(Event.event_date_start) >= date_start)
             if 'date_end' in filters:
-                query = query.filter(Event.event_date_end <= filters['date_end'])
+                date_end = filters['date_end']
+                query = query.filter(func.date(Event.event_date_end) <= date_end)
             if 'location' in filters:
                 query = query.filter(Event.location == filters['location'])
             if 'min_attendees' in filters:

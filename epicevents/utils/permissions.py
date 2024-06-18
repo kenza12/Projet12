@@ -54,3 +54,7 @@ class PermissionManager:
     @staticmethod
     def can_filter_events(user: User) -> bool:
         return user.department.name == "Gestion"
+
+    @staticmethod
+    def can_filter_contracts(user: User) -> bool:
+        return user.department.name == "Commercial"

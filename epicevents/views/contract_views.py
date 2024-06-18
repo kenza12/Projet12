@@ -1,6 +1,6 @@
-import click
 from rich.console import Console
 from controllers.main_controller import MainController
+from utils.table_printer import print_table
 
 console = Console()
 
@@ -48,3 +48,34 @@ def get_contracts():
             console.print(f"Contract ID: {contract.id}, Client ID: {contract.client_id}, Total Amount: {contract.total_amount}")
     else:
         console.print("[bold red]No contracts found or you are not authorized to view them.[/bold red]")
+
+
+def filter_contracts():
+    console.print("[bold blue]Filter Contracts[/bold blue]")
+    console.print("1. Unsigned Contracts\n2. Unpaid Contracts\n3. Return to Main Menu")
+    choice = input("Enter your choice: ")
+    
+    filters = {}
+    if choice == '1':
+        filters['signed'] = False
+    elif choice == '2':
+        filters['unpaid'] = True
+    elif choice == '3':
+        return
+    else:
+        console.print("[bold red]Invalid choice. Please try again.[/bold red]")
+        return
+
+    contracts = MainController.filter_contracts(filters)
+    if contracts:
+        contract_data = [{
+            "Contract ID": contract.id,
+            "Client ID": contract.client_id,
+            "Total Amount": contract.total_amount,
+            "Amount Due": contract.amount_due,
+            "Signed": contract.signed
+        } for contract in contracts]
+        
+        print_table(contract_data, title="Filtered Contracts")
+    else:
+        console.print("[bold red]No contracts found matching the criteria.[/bold red]")

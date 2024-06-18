@@ -92,3 +92,24 @@ class ContractController:
         except Exception as e:
             sentry_sdk.capture_exception(e)
             return False
+
+    @staticmethod
+    def get_filtered_contracts(filters: dict) -> list:
+        """
+        Retrieves contracts based on specified filters.
+        Args:
+            filters (dict): Dictionary of filters.
+        Returns:
+            list: List of Contract objects that match the filters.
+        """
+        try:
+            session = get_session()
+            query = session.query(Contract)
+            if 'signed' in filters:
+                query = query.filter(Contract.signed == filters['signed'])
+            if 'unpaid' in filters:
+                query = query.filter(Contract.amount_due > 0)
+            return query.all()
+        except Exception as e:
+            sentry_sdk.capture_exception(e)
+            return []

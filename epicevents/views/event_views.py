@@ -70,67 +70,73 @@ def filter_events():
     """
     Filter events based on criteria.
     """
-    filters = {}
-    
-    # Help message
-    console.print("[bold blue]Filter Events Help:[/bold blue]")
-    console.print("- Date Format: YYYY-MM-DD")
-    console.print("- Example for Start Date: 2024-01-01")
-    console.print("- Leave blank to skip a filter\n")
-
-    filter_choice = input("Filter by No Support Contact (y/n): ").strip().lower()
-    if filter_choice == 'y':
-        filters['no_support'] = True
-
-    client_name = input("Client Name (leave blank to skip): ").strip()
-    if client_name:
-        client_id = ClientController.get_client_id_by_name(client_name)
-        if client_id:
-            filters['client_id'] = client_id
-        else:
-            console.print(f"[bold red]Client '{client_name}' not found.[/bold red]")
-            return
-
-    date_start = input("Start Date (YYYY-MM-DD, leave blank to skip): ").strip()
-    if date_start:
-        filters['date_start'] = date_start
-
-    date_end = input("End Date (YYYY-MM-DD, leave blank to skip): ").strip()
-    if date_end:
-        filters['date_end'] = date_end
-
-    location = input("Location (leave blank to skip): ").strip()
-    if location:
-        filters['location'] = location
-
-    min_attendees = input("Minimum Attendees (leave blank to skip): ").strip()
-    if min_attendees:
-        try:
-            filters['min_attendees'] = int(min_attendees)
-        except ValueError:
-            console.print("[bold red]Invalid value for Minimum Attendees. Please enter a number.[/bold red]")
-            return
-
-    max_attendees = input("Maximum Attendees (leave blank to skip): ").strip()
-    if max_attendees:
-        try:
-            filters['max_attendees'] = int(max_attendees)
-        except ValueError:
-            console.print("[bold red]Invalid value for Maximum Attendees. Please enter a number.[/bold red]")
-            return
-
-    events = MainController.filter_events(filters)
-    if events:
-        event_data = [{
-            "Event Name": event.event_name,
-            "Location": event.location,
-            "Start Date": event.event_date_start,
-            "End Date": event.event_date_end,
-            "Support Contact ID": event.support_contact_id if event.support_contact_id else "None",
-            "Attendees": event.attendees,
-            "Notes": event.notes
-        } for event in events]
+    while True:
+        console.print("[bold blue]Filter Events[/bold blue]")
+        console.print("1. Events with No Support Contact\n2. Events by Client\n3. Events by Date Range\n4. Events by Location\n5. Events by Attendance\n6. Return to Main Menu")
+        choice = input("Enter your choice: ")
         
-        print_table(event_data, title="Filtered Events")
-    else:
-        console.print("[bold red]No events found matching the criteria or you are not authorized to view them.[/bold red]")
+        filters = {}
+        if choice == '1':
+            filters['no_support'] = True
+        elif choice == '2':
+            client_name = input("Enter Client Name: ").strip()
+            if client_name:
+                client_id = ClientController.get_client_id_by_name(client_name)
+                if client_id:
+                    filters['client_id'] = client_id
+                else:
+                    console.print(f"[bold red]Client '{client_name}' not found.[/bold red]")
+                    continue
+            else:
+                console.print("[bold red]Client Name cannot be empty.[/bold red]")
+                continue
+        elif choice == '3':
+            date_start = input("Enter Start Date (YYYY-MM-DD): ").strip()
+            date_end = input("Enter End Date (YYYY-MM-DD): ").strip()
+            if date_start and date_end:
+                filters['date_start'] = date_start
+                filters['date_end'] = date_end
+            else:
+                console.print("[bold red]Both Start Date and End Date must be provided.[/bold red]")
+                continue
+        elif choice == '4':
+            location = input("Enter Location: ").strip()
+            if location:
+                filters['location'] = location
+            else:
+                console.print("[bold red]Location cannot be empty.[/bold red]")
+                continue
+        elif choice == '5':
+            min_attendees = input("Enter Minimum Attendees: ").strip()
+            max_attendees = input("Enter Maximum Attendees: ").strip()
+            if min_attendees and max_attendees:
+                try:
+                    filters['min_attendees'] = int(min_attendees)
+                    filters['max_attendees'] = int(max_attendees)
+                except ValueError:
+                    console.print("[bold red]Invalid values for attendance. Please enter numbers.[/bold red]")
+                    continue
+            else:
+                console.print("[bold red]Both Minimum and Maximum Attendees must be provided.[/bold red]")
+                continue
+        elif choice == '6':
+            return
+        else:
+            console.print("[bold red]Invalid choice. Please try again.[/bold red]")
+            continue
+
+        events = MainController.filter_events(filters)
+        if events:
+            event_data = [{
+                "Event Name": event.event_name,
+                "Location": event.location,
+                "Start Date": event.event_date_start,
+                "End Date": event.event_date_end,
+                "Support Contact ID": event.support_contact_id if event.support_contact_id else "None",
+                "Attendees": event.attendees,
+                "Notes": event.notes
+            } for event in events]
+            
+            print_table(event_data, title="Filtered Events")
+        else:
+            console.print("[bold red]No events found matching the criteria or you are not authorized to view them.[/bold red]")

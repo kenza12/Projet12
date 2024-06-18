@@ -3,7 +3,7 @@ from rich.console import Console
 from controllers.main_controller import MainController
 from views.client_views import create_client, update_client, get_clients
 from views.user_views import create_collaborator, update_collaborator, delete_collaborator
-from views.contract_views import create_contract, update_contract, get_contracts
+from views.contract_views import create_contract, update_contract, get_contracts, filter_contracts
 from views.event_views import get_events, update_event, filter_events, update_event_support_contact
 
 console = Console()
@@ -202,7 +202,7 @@ def manage_contracts():
         if user_role == "Gestion":
             console.print("1. Create Contract\n2. Update Contract\n3. Return to Main Menu")
         elif user_role == "Commercial":
-            console.print("1. Update Contract\n2. Return to Main Menu")
+            console.print("1. Update Contract\n2. Filter Contracts\n3. Return to Main Menu")
         choice = input("Enter your choice: ")
         if choice == '1':
             if user_role == "Gestion":
@@ -213,8 +213,8 @@ def manage_contracts():
             if user_role == "Gestion":
                 update_contract()
             elif user_role == "Commercial":
-                return
-        elif choice == '3' and user_role == "Gestion":
+                filter_contracts()
+        elif choice == '3':
             return
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")

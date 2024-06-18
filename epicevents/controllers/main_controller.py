@@ -583,6 +583,25 @@ class MainController:
             return "You are not authorized to perform this action."
 
     @staticmethod
+    def filter_contracts(filters: dict) -> list:
+        """
+        Filter contracts based on specified criteria.
+        Args:
+            filters (dict): Dictionary of filters.
+        Returns:
+            list: List of filtered Contract objects.
+        """
+        token, user, authorized = MainController.verify_authentication_and_authorization('filter_contracts')
+        if authorized:
+            try:
+                return ContractController.get_filtered_contracts(filters)
+            except Exception as e:
+                sentry_sdk.capture_exception(e)
+                return []
+        else:
+            return []
+
+    @staticmethod
     def start_cli():
         """
         Starts the CLI.
