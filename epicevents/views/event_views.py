@@ -1,8 +1,8 @@
-import click
 from rich.console import Console
 from controllers.main_controller import MainController
 from controllers.client_controller import ClientController
 from controllers.user_controller import UserController
+from controllers.contract_controller import ContractController
 from utils.table_printer import print_table
 
 
@@ -18,6 +18,47 @@ def get_events():
             console.print(f"Event: {event.event_name}, Location: {event.location}")
     else:
         console.print("[bold red]No events found or you are not authorized to view them.[/bold red]")
+
+def create_event_commercial():
+    try:
+        contract_id = int(input("Contract ID: "))
+        
+        # Vérification du contrat
+        contract = ContractController.get_contract_by_id(contract_id)
+        if not contract:
+            console.print("[bold red]Contract not found.[/bold red]")
+            return
+
+        if not contract.signed:
+            console.print("[bold red]The contract is not signed.[/bold red]")
+            return
+        
+        current_username = MainController.get_current_user()
+        current_user_id = UserController.get_user_id_by_name(current_username)
+
+        # Ajout des impressions de débogage
+        print(f"Current username: {current_username}")
+        print(f"Current user ID: {current_user_id}")
+        print(f"Contract commercial contact ID: {contract.commercial_contact_id}")
+        
+        if contract.commercial_contact_id != current_user_id:
+            console.print("[bold red]You are not authorized to create an event for this contract.[/bold red]")
+            return
+
+        event_name = input("Event Name: ")
+        event_date_start = input("Event Date Start (YYYY-MM-DD HH:MM:SS): ")
+        event_date_end = input("Event Date End (YYYY-MM-DD HH:MM:SS): ")
+        location = input("Location: ")
+        attendees = int(input("Attendees: "))
+        notes = input("Notes: ")
+        
+        result_message = MainController.create_event(contract_id, event_name, event_date_start, event_date_end, location, attendees, notes)
+        console.print(f"[bold green]{result_message}[/bold green]" if "successfully" in result_message else f"[bold red]{result_message}[/bold red]")
+    except ValueError as ve:
+        console.print(f"[bold red]Input Error: {ve}[/bold red]")
+    except Exception as e:
+        console.print(f"[bold red]Error: {e}[/bold red]")
+
 
 def update_event():
     """

@@ -24,12 +24,12 @@ class DataValidator:
         return re.match(phone_regex, phone) is not None
 
     @staticmethod
-    def validate_date(date_text: str) -> bool:
+    def validate_datetime(datetime_text: str) -> bool:
         """
-        Validates the date format (YYYY-MM-DD).
+        Validates the date and time format (YYYY-MM-DD HH:MM:SS).
         """
         try:
-            datetime.strptime(date_text, '%Y-%m-%d')
+            datetime.strptime(datetime_text, '%Y-%m-%d %H:%M:%S')
             return True
         except ValueError:
             return False

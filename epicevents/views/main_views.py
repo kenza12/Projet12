@@ -4,7 +4,7 @@ from controllers.main_controller import MainController
 from views.client_views import create_client, update_client, get_clients
 from views.user_views import create_collaborator, update_collaborator, delete_collaborator
 from views.contract_views import create_contract, update_contract, get_contracts, filter_contracts
-from views.event_views import get_events, update_event, filter_events, update_event_support_contact
+from views.event_views import get_events, update_event, filter_events, update_event_support_contact, create_event_commercial
 
 console = Console()
 
@@ -118,7 +118,7 @@ def commercial_menu():
         elif choice == '2':
             manage_contracts()
         elif choice == '3':
-            manage_events()
+            manage_events_commercial()
         elif choice == '4':
             list_all()
         elif choice == '5':
@@ -219,19 +219,17 @@ def manage_contracts():
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")
 
-def manage_events():
+def manage_events_commercial():
     """
     Submenu for managing events.
     """
     while True:
         console.print("[bold blue]Event Management[/bold blue]")
-        console.print("1. Update Event\n2. Filter Events\n3. Return to Main Menu")
+        console.print("1. Create Event\n2. Return to Main Menu")
         choice = input("Enter your choice: ")
         if choice == '1':
-            update_event()
+            create_event_commercial()
         elif choice == '2':
-            filter_events()
-        elif choice == '3':
             return
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")

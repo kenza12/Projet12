@@ -30,14 +30,14 @@ class EventController:
             return []
 
     @staticmethod
-    def create_event(token: str, contract_id: int, client_id: int, event_name: str, event_date_start: str, event_date_end: str,
+    def create_event(contract_id: int, client_id: int, event_name: str, event_date_start: str, event_date_end: str,
                      support_contact_id: int, location: str, attendees: int, notes: str) -> bool:
         """
         Creates a new event if data is valid.
         """
         try:
             session = get_session()
-            if not (DataValidator.validate_date(event_date_start) and DataValidator.validate_date(event_date_end)):
+            if not (DataValidator.validate_datetime(event_date_start) and DataValidator.validate_datetime(event_date_end)):
                 raise ValueError("Invalid date provided for creating event.")
 
             event = Event(contract_id=contract_id, client_id=client_id, event_name=event_name, event_date_start=event_date_start,
@@ -48,6 +48,7 @@ class EventController:
             return True
         except Exception as e:
             sentry_sdk.capture_exception(e)
+            session.rollback()
             return False
 
     @staticmethod

@@ -144,17 +144,17 @@ class UserController:
             raise
 
     @staticmethod
-    def get_user_id_by_name(name: str) -> int:
+    def get_user_id_by_name(username: str) -> int:
         """
-        Retrieve the user ID based on the user's name.
+        Retrieve the user ID based on the user's username.
         Args:
-            name (str): The name of the user.
+            username (str): The username of the user.
         Returns:
             int: The ID of the user if found, otherwise None.
         """
         try:
             session = get_session()
-            user = session.query(User).filter_by(name=name).first()
+            user = session.query(User).filter_by(username=username).first()
             if user:
                 return user.id
             return None

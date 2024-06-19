@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, inspect
+from sqlalchemy import inspect
 from config import Config, SERVICE_NAME
 from models.user import User
 from models.department import Department
@@ -16,7 +16,6 @@ from controllers.event_controller import EventController
 from utils.session_manager import get_session_root
 from datetime import datetime
 from utils.permissions import PermissionManager
-from utils.data_validator import DataValidator
 from utils.session_manager import get_session
 from datetime import date
 
@@ -373,18 +372,31 @@ class MainController:
             return "You are not authorized to perform this action."
 
     @staticmethod
-    def create_event(contract_id: int, client_id: int, event_name: str, event_date_start: str,
-                     event_date_end: str, support_contact_id: int, location: str, attendees: int, notes: str) -> bool:
+    def create_event(contract_id: int, event_name: str, event_date_start: str,
+                    event_date_end: str, location: str, attendees: int, notes: str) -> str:
         """
-        Create a new event if the user is authorized.
+        Create a new event if the user is authorized and the contract is signed.
+        Returns:
+            str: Message indicating the result of the operation.
         """
         token, user, authorized = MainController.verify_authentication_and_authorization('create_event')
         if authorized:
             try:
-                return EventController.create_event(token, contract_id, client_id, event_name, event_date_start, event_date_end, support_contact_id, location, attendees, notes)
+                client_id = ContractController.get_client_id_by_contract_id(contract_id)
+                support_contact_id = None  # Initially set to None until a support contact is assigned
+                success = EventController.create_event(contract_id, client_id, event_name, event_date_start, event_date_end, support_contact_id, location, attendees, notes)
+                if success:
+                    return "Event created successfully."
+                else:
+                    return "Failed to create event. Please check the input data."
+            except ValueError as ve:
+                return f"Validation Error: {ve}"
             except Exception as e:
                 sentry_sdk.capture_exception(e)
-        return False
+                return f"Error creating event: {e}"
+        else:
+            return "You are not authorized to perform this action."
+
 
     @staticmethod
     def update_event(event_id: int, contract_id: int = None, client_id: int = None, event_name: str = None,

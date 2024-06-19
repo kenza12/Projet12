@@ -44,6 +44,20 @@ class ContractController:
         except Exception as e:
             sentry_sdk.capture_exception(e)
             return None
+        
+    @staticmethod
+    def get_client_id_by_contract_id(contract_id: int) -> int:
+        """
+        Retrieve the client ID based on the contract ID.
+        Args:
+            contract_id (int): The ID of the contract.
+        Returns:
+            int: The ID of the client if found, otherwise None.
+        """
+        contract = ContractController.get_contract_by_id(contract_id)
+        if contract:
+            return contract.client_id
+        return None
     
     @staticmethod
     def create_contract(client_id: int, commercial_contact_id: int, total_amount: float, amount_due: float,
