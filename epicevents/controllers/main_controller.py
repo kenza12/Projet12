@@ -417,6 +417,9 @@ class MainController:
                     success = EventController.update_event(token_gestion, user_gestion, event_id, support_contact_id=support_contact_id)
                 elif authorized_support:
                     # If Support department, update all fields
+                    event = EventController.get_event_by_id(event_id)
+                    if event.support_contact_id != user.id:
+                        return "You are not authorized to update this event."
                     success = EventController.update_event(token, user, event_id, contract_id, client_id, event_name, event_date_start, event_date_end, support_contact_id, location, attendees, notes)
                 else:
                     return "You are not authorized to update events."
@@ -539,6 +542,8 @@ class MainController:
         token, user, authorized = MainController.verify_authentication_and_authorization('filter_events')
         if authorized:
             try:
+                if user.department.name == "Support":
+                    filters['support_contact_id'] = user.id
                 return EventController.get_filtered_events(filters)
             except Exception as e:
                 sentry_sdk.capture_exception(e)

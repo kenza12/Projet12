@@ -4,7 +4,7 @@ from controllers.main_controller import MainController
 from views.client_views import create_client, update_client, get_clients
 from views.user_views import create_collaborator, update_collaborator, delete_collaborator
 from views.contract_views import create_contract, update_contract, get_contracts, filter_contracts
-from views.event_views import get_events, update_event, filter_events, update_event_support_contact, create_event_commercial
+from views.event_views import get_events, update_event, filter_events, create_event_commercial
 
 console = Console()
 
@@ -138,7 +138,7 @@ def support_menu():
         console.print("1. Manage Events\n2. List All\n3. Logout\n4. Quit")
         choice = input("Enter your choice: ")
         if choice == '1':
-            manage_events()
+            manage_events_support()
         elif choice == '2':
             list_all()
         elif choice == '3':
@@ -146,6 +146,23 @@ def support_menu():
             return
         elif choice == '4':
             exit()
+        else:
+            console.print("[bold red]Invalid choice. Please try again.[/bold red]")
+
+def manage_events_support():
+    """
+    Submenu for managing events for the Support department.
+    """
+    while True:
+        console.print("[bold blue]Support Event Management[/bold blue]")
+        console.print("1. Filter Events\n2. Update Event\n3. Return to Main Menu")
+        choice = input("Enter your choice: ")
+        if choice == '1':
+            filter_events()
+        elif choice == '2':
+            update_event()
+        elif choice == '3':
+            return
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")
 
@@ -243,7 +260,7 @@ def manage_events_gestion():
         console.print("1. Update Event Support Contact\n2. Filter Events\n3. Return to Main Menu")
         choice = input("Enter your choice: ")
         if choice == '1':
-            update_event_support_contact()
+            update_event()
         elif choice == '2':
             filter_events()
         elif choice == '3':

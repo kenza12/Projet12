@@ -75,8 +75,8 @@ def update_event():
         contract_id = input("Contract ID (leave blank to skip): ").strip() or None
         client_id = input("Client ID (leave blank to skip): ").strip() or None
         event_name = input("Event Name (leave blank to skip): ").strip() or None
-        event_date_start = input("Event Date Start (YYYY-MM-DD, leave blank to skip): ").strip() or None
-        event_date_end = input("Event Date End (YYYY-MM-DD, leave blank to skip): ").strip() or None
+        event_date_start = input("Event Date Start (YYYY-MM-DD HH:MM:SS, leave blank to skip): ").strip() or None
+        event_date_end = input("Event Date End (YYYY-MM-DD HH:MM:SS, leave blank to skip): ").strip() or None
         location = input("Location (leave blank to skip): ").strip() or None
         attendees = input("Attendees (leave blank to skip): ").strip() or None
         notes = input("Notes (leave blank to skip): ").strip() or None
@@ -91,33 +91,29 @@ def update_event():
     result_message = MainController.update_event(event_id, contract_id, client_id, event_name, event_date_start, event_date_end, support_contact_id, location, attendees, notes)
     console.print(f"[bold green]{result_message}[/bold green]" if "successfully" in result_message else f"[bold red]{result_message}[/bold red]")
 
-def update_event_support_contact():
-    """
-    Update the support contact of an event.
-    """
-    event_id = input("Event ID: ").strip()
-    support_contact_name = input("Support Contact Name: ").strip()
-
-    support_contact_id = UserController.get_user_id_by_name(support_contact_name)
-    if support_contact_id is None:
-        console.print(f"[bold red]Support Contact '{support_contact_name}' not found.[/bold red]")
-        return
-
-    result_message = MainController.update_event(event_id, support_contact_id=support_contact_id)
-    console.print(f"[bold green]{result_message}[/bold green]" if "successfully" in result_message else f"[bold red]{result_message}[/bold red]")
-
 
 def filter_events():
     """
     Filter events based on criteria.
     """
+    username = MainController.get_current_user()
+    user_role = MainController.get_user_role(username)
+
     while True:
         console.print("[bold blue]Filter Events[/bold blue]")
-        console.print("1. Events with No Support Contact\n2. Events by Client\n3. Events by Date Range\n4. Events by Location\n5. Events by Attendance\n6. Return to Main Menu")
+        if user_role == "Support":
+            console.print("1. Events Assigned to Me\n2. Events by Client\n3. Events by Date Range\n4. Events by Location\n5. Events by Attendance\n6. Return to Main Menu")
+        elif user_role == "Gestion":
+            console.print("1. Events with No Support Contact\n2. Events by Client\n3. Events by Date Range\n4. Events by Location\n5. Events by Attendance\n6. Return to Main Menu")
+
         choice = input("Enter your choice: ")
-        
         filters = {}
-        if choice == '1':
+
+        if user_role == "Support" and choice == '1':
+            current_username = MainController.get_current_user()
+            current_user_id = UserController.get_user_id_by_name(current_username)
+            filters['support_contact_id'] = current_user_id
+        elif choice == '1':
             filters['no_support'] = True
         elif choice == '2':
             client_name = input("Enter Client Name: ").strip()
@@ -165,7 +161,9 @@ def filter_events():
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")
             continue
-
+        
+        print ("**************************")
+        print (filters)
         events = MainController.filter_events(filters)
         if events:
             event_data = [{

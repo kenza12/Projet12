@@ -74,9 +74,9 @@ class EventController:
                     event.client_id = client_id
                 if event_name and DataValidator.validate_not_empty(event_name):
                     event.event_name = event_name
-                if event_date_start and DataValidator.validate_date(event_date_start):
+                if event_date_start and DataValidator.validate_datetime(event_date_start):
                     event.event_date_start = event_date_start
-                if event_date_end and DataValidator.validate_date(event_date_end):
+                if event_date_end and DataValidator.validate_datetime(event_date_end):
                     event.event_date_end = event_date_end
                 if location:
                     event.location = location
@@ -105,6 +105,8 @@ class EventController:
             query = session.query(Event)
             if 'no_support' in filters and filters['no_support']:
                 query = query.filter(Event.support_contact_id.is_(None))
+            if 'support_contact_id' in filters:
+                query = query.filter(Event.support_contact_id == filters['support_contact_id'])
             if 'client_id' in filters:
                 query = query.filter(Event.client_id == filters['client_id'])
             if 'date_start' in filters:
@@ -123,3 +125,20 @@ class EventController:
         except Exception as e:
             sentry_sdk.capture_exception(e)
             return []
+
+    @staticmethod
+    def get_event_by_id(event_id: int) -> Event:
+        """
+        Retrieve an event by its ID.
+        Args:
+            event_id (int): The ID of the event.
+        Returns:
+            Event: The Event object if found, otherwise None.
+        """
+        try:
+            session = get_session()
+            event = session.query(Event).filter_by(id=event_id).first()
+            return event
+        except Exception as e:
+            sentry_sdk.capture_exception(e)
+            return None
