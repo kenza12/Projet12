@@ -8,10 +8,12 @@ from views.event_views import get_events, update_event, filter_events, create_ev
 
 console = Console()
 
+
 @click.group()
 def cli():
     """Epic Events CRM Command Line Interface"""
     pass
+
 
 @cli.command()
 def initialize():
@@ -31,6 +33,7 @@ def initialize():
     except Exception as e:
         console.print(f"[bold red]Error during initialization: {e}[/bold red]")
 
+
 @cli.command()
 @click.option('--username', prompt='Username', help='The username of the user')
 @click.option('--password', prompt=True, hide_input=True, help='The password of the user')
@@ -45,9 +48,10 @@ def login(username, password):
     tokens = MainController.authenticate(username, password)
     if tokens:
         console.print(f"Authentication successful. Your tokens have been stored.", style="bold green")
-        display_menu()  # Call the display_menu function after successful login
+        display_menu()
     else:
         console.print("[bold red]Authentication failed.[/bold red]")
+
 
 @cli.command()
 @click.option('--username', prompt='Username', help='The username of the user')
@@ -61,6 +65,7 @@ def refresh(username, password):
         console.print(f"Token refreshed successfully. Your new token has been stored.", style="bold green")
     else:
         console.print("[bold red]Failed to refresh token. No active session found, please login first.[/bold red]")
+
 
 @cli.command()
 @click.option('--username', prompt='Username', help='The username of the user')
@@ -76,6 +81,7 @@ def check_token(username):
     else:
         console.print("[bold red]No valid token found. Please log in by running `python epicevents/main.py login`.[/bold red]")
 
+
 @cli.command()
 def logout():
     """
@@ -88,6 +94,7 @@ def logout():
         console.print("[bold red]No active session found.[/bold red]")
     else:
         console.print(f"[bold red]Error during logout: {result}[/bold red]")
+
 
 def display_menu():
     """
@@ -104,6 +111,7 @@ def display_menu():
         gestion_menu()
     else:
         console.print("[bold red]Unknown role. Cannot display menu.[/bold red]")
+
 
 def commercial_menu():
     """
@@ -129,6 +137,7 @@ def commercial_menu():
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")
 
+
 def support_menu():
     """
     Display the menu for the Support department.
@@ -149,6 +158,7 @@ def support_menu():
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")
 
+
 def manage_events_support():
     """
     Submenu for managing events for the Support department.
@@ -165,6 +175,7 @@ def manage_events_support():
             return
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")
+
 
 def gestion_menu():
     """
@@ -190,6 +201,7 @@ def gestion_menu():
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")
 
+
 def manage_clients():
     """
     Submenu for managing clients.
@@ -206,6 +218,7 @@ def manage_clients():
             return
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")
+
 
 def manage_contracts():
     """
@@ -236,6 +249,7 @@ def manage_contracts():
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")
 
+
 def manage_events_commercial():
     """
     Submenu for managing events.
@@ -250,6 +264,7 @@ def manage_events_commercial():
             return
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")
+
 
 def manage_events_gestion():
     """
@@ -267,6 +282,7 @@ def manage_events_gestion():
             return
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")
+
 
 def manage_collaborators():
     """
@@ -287,6 +303,7 @@ def manage_collaborators():
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")
 
+
 def list_all():
     """
     Submenu for listing all clients, contracts, and events.
@@ -306,8 +323,10 @@ def list_all():
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")
 
+
 def start_cli():
     cli()
+
 
 if __name__ == "__main__":
     cli()

@@ -144,7 +144,7 @@ class UserController:
             raise
 
     @staticmethod
-    def get_user_id_by_name(username: str) -> int:
+    def get_user_id_by_username(username: str) -> int:
         """
         Retrieve the user ID based on the user's username.
         Args:
@@ -154,8 +154,28 @@ class UserController:
         """
         try:
             session = get_session()
-            user = session.query(User).filter_by(username=username).first()
+            user = session.query(User).filter_by(name=username).first()
             if user:
+                return user.id
+            return None
+        except Exception as e:
+            sentry_sdk.capture_exception(e)
+            return None
+
+    @staticmethod
+    def get_user_id_by_name(name: str) -> int:
+        """
+        Retrieve the user ID based on the user's name.
+        Args:
+            name (str): The name of the user.
+        Returns:
+            int: The ID of the user if found, otherwise None.
+        """
+        try:
+            session = get_session()
+            user = session.query(User).filter_by(name=name).first()
+            if user:
+                print(f"User ID for {name}: {user.id}")
                 return user.id
             return None
         except Exception as e:

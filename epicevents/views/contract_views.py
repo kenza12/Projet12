@@ -4,6 +4,7 @@ from utils.table_printer import print_table
 
 console = Console()
 
+
 def create_contract():
     try:
         client_id = int(input("Client ID: "))
@@ -19,6 +20,7 @@ def create_contract():
         console.print(f"[bold red]Input Error: {ve}[/bold red]")
     except Exception as e:
         console.print(f"[bold red]Error: {e}[/bold red]")
+
 
 def update_contract():
     try:
@@ -38,14 +40,24 @@ def update_contract():
     except Exception as e:
         console.print(f"[bold red]Error: {e}[/bold red]")
 
+
 def get_contracts():
     """
     Retrieve and display all contracts if the user is authenticated and authorized.
     """
     contracts = MainController.get_contracts()
     if contracts:
-        for contract in contracts:
-            console.print(f"Contract ID: {contract.id}, Client ID: {contract.client_id}, Total Amount: {contract.total_amount}")
+        contract_data = [{
+            "Contract ID": contract.id,
+            "Client ID": contract.client_id,
+            "Commercial Contact ID": contract.commercial_contact_id,
+            "Total Amount": contract.total_amount,
+            "Amount Due": contract.amount_due,
+            "Date Created": contract.date_created,
+            "Signed": contract.signed
+        } for contract in contracts]
+        
+        print_table(contract_data, title="Contracts")
     else:
         console.print("[bold red]No contracts found or you are not authorized to view them.[/bold red]")
 

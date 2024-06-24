@@ -8,16 +8,30 @@ from utils.table_printer import print_table
 
 console = Console()
 
+
 def get_events():
     """
     Retrieve and display all events if the user is authenticated and authorized.
     """
     events = MainController.get_events()
     if events:
-        for event in events:
-            console.print(f"Event: {event.event_name}, Location: {event.location}")
+        event_data = [{
+            "Event ID": event.id,
+            "Contract ID": event.contract_id,
+            "Client ID": event.client_id,
+            "Event Name": event.event_name,
+            "Start Date": event.event_date_start,
+            "End Date": event.event_date_end,
+            "Support Contact ID": event.support_contact_id if event.support_contact_id else "None",
+            "Location": event.location,
+            "Attendees": event.attendees,
+            "Notes": event.notes
+        } for event in events]
+        
+        print_table(event_data, title="Events")
     else:
         console.print("[bold red]No events found or you are not authorized to view them.[/bold red]")
+
 
 def create_event_commercial():
     try:
@@ -34,12 +48,7 @@ def create_event_commercial():
             return
         
         current_username = MainController.get_current_user()
-        current_user_id = UserController.get_user_id_by_name(current_username)
-
-        # Ajout des impressions de débogage
-        print(f"Current username: {current_username}")
-        print(f"Current user ID: {current_user_id}")
-        print(f"Contract commercial contact ID: {contract.commercial_contact_id}")
+        current_user_id = UserController.get_user_id_by_username(current_username)
         
         if contract.commercial_contact_id != current_user_id:
             console.print("[bold red]You are not authorized to create an event for this contract.[/bold red]")
@@ -111,7 +120,7 @@ def filter_events():
 
         if user_role == "Support" and choice == '1':
             current_username = MainController.get_current_user()
-            current_user_id = UserController.get_user_id_by_name(current_username)
+            current_user_id = UserController.get_user_id_by_username(current_username)
             filters['support_contact_id'] = current_user_id
         elif choice == '1':
             filters['no_support'] = True
@@ -161,9 +170,7 @@ def filter_events():
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")
             continue
-        
-        print ("**************************")
-        print (filters)
+
         events = MainController.filter_events(filters)
         if events:
             event_data = [{
