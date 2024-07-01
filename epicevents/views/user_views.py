@@ -38,6 +38,16 @@ def update_collaborator():
         password = input("Password (leave blank to skip): ")
         email = input("Email (leave blank to skip): ")
         name = input("Name (leave blank to skip): ")
+
+        console.print("[bold blue]Departments:[/bold blue]")
+        console.print("+----+------------+")
+        console.print("| id | name       |")
+        console.print("+----+------------+")
+        console.print("|  1 | Commercial |")
+        console.print("|  2 | Support    |")
+        console.print("|  3 | Gestion    |")
+        console.print("+----+------------+")
+
         department_id = input("Department ID (leave blank to skip): ")
         
         department_id = int(department_id) if department_id else None

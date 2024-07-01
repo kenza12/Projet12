@@ -6,10 +6,17 @@ console = Console()
 
 
 def create_contract():
+    """
+    Prompt the user for details to create a new contract, including client ID, total amount, amount due,
+    and whether the contract is signed.
+    """
     try:
         client_id = int(input("Client ID: "))
         total_amount = float(input("Total Amount: "))
+
+        console.print("[bold blue]If there is no amount due, enter 0.[/bold blue]")
         amount_due = float(input("Amount Due: "))
+
         signed_input = input("Signed (True/False): ").strip().lower()
         signed = signed_input == 'true'
         

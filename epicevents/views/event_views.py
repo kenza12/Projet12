@@ -71,7 +71,7 @@ def create_event_commercial():
 
 def update_event():
     """
-    Update an event.
+    Update an event for support and gestion teams.
     """
     username = MainController.get_current_user()
     user_role = MainController.get_user_role(username)
@@ -103,7 +103,7 @@ def update_event():
 
 def filter_events():
     """
-    Filter events based on criteria.
+    Filter events based on criteria for support and gestion teams.
     """
     username = MainController.get_current_user()
     user_role = MainController.get_user_role(username)
@@ -174,11 +174,14 @@ def filter_events():
         events = MainController.filter_events(filters)
         if events:
             event_data = [{
+                "Event ID": event.id,
+                "Contract ID": event.contract_id,
+                "Client ID": event.client_id,
                 "Event Name": event.event_name,
-                "Location": event.location,
                 "Start Date": event.event_date_start,
                 "End Date": event.event_date_end,
                 "Support Contact ID": event.support_contact_id if event.support_contact_id else "None",
+                "Location": event.location,
                 "Attendees": event.attendees,
                 "Notes": event.notes
             } for event in events]
