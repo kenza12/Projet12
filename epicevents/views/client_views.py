@@ -1,26 +1,52 @@
 from rich.console import Console
 from controllers.main_controller import MainController
 from utils.table_printer import print_table
+from utils.data_validator import DataValidator
 
 console = Console()
 
 
 def create_client():
-    full_name = input("Full Name: ")
-    email = input("Email: ")
-    phone = input("Phone: ")
-    company_name = input("Company Name: ")
-    result_message = MainController.create_client(full_name, email, phone, company_name)
+    """
+    Prompt the user for details to create a new client.
+    """
+    full_name = DataValidator.prompt_and_validate("Full Name: ", DataValidator.validate_string, "Full Name")
+    email = DataValidator.prompt_and_validate("Email: ", DataValidator.validate_email)
+    phone = DataValidator.prompt_and_validate("Phone: ", DataValidator.validate_phone)
+    company_name = DataValidator.prompt_and_validate("Company Name: ", DataValidator.validate_string, "Company Name")
+
+    data = {
+        "full_name": full_name,
+        "email": email,
+        "phone": phone,
+        "company_name": company_name
+    }
+
+    result_message = MainController.create_client(**data)
     console.print(f"[bold green]{result_message}[/bold green]" if "successfully" in result_message else f"[bold red]{result_message}[/bold red]")
 
-
 def update_client():
-    client_name = input("Client Name: ")
-    full_name = input("New Full Name (leave blank to skip): ")
-    email = input("New Email (leave blank to skip): ")
-    phone = input("New Phone (leave blank to skip): ")
-    company_name = input("New Company Name (leave blank to skip): ")
-    result_message = MainController.update_client(client_name, full_name, email, phone, company_name)
+    """
+    Prompt the user for details to update an existing client.
+    """
+    client_id = DataValidator.prompt_and_validate("Client ID: ", DataValidator.validate_id, "Client ID")
+
+    full_name = DataValidator.prompt_and_validate("New Full Name (leave blank to skip): ", DataValidator.validate_string, "Full Name", allow_empty=True)
+    email = DataValidator.prompt_and_validate("New Email (leave blank to skip): ", DataValidator.validate_email, allow_empty=True)
+    phone = DataValidator.prompt_and_validate("New Phone (leave blank to skip): ", DataValidator.validate_phone, allow_empty=True)
+    company_name = DataValidator.prompt_and_validate("New Company Name (leave blank to skip): ", DataValidator.validate_string, "Company Name", allow_empty=True)
+
+    update_data = {}
+    if full_name:
+        update_data["full_name"] = full_name
+    if email:
+        update_data["email"] = email
+    if phone:
+        update_data["phone"] = phone
+    if company_name:
+        update_data["company_name"] = company_name
+
+    result_message = MainController.update_client(client_id, **update_data)
     console.print(f"[bold green]{result_message}[/bold green]" if "successfully" in result_message else f"[bold red]{result_message}[/bold red]")
 
 

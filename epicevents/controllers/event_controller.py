@@ -3,7 +3,6 @@ from models.user import User
 import sentry_sdk
 from utils.token_manager import TokenManager
 from utils.session_manager import get_session
-from utils.data_validator import DataValidator
 from sqlalchemy import func
 
 
@@ -37,8 +36,6 @@ class EventController:
         """
         try:
             session = get_session()
-            if not (DataValidator.validate_datetime(event_date_start) and DataValidator.validate_datetime(event_date_end)):
-                raise ValueError("Invalid date provided for creating event.")
 
             event = Event(contract_id=contract_id, client_id=client_id, event_name=event_name, event_date_start=event_date_start,
                           event_date_end=event_date_end, support_contact_id=support_contact_id, location=location,
@@ -72,11 +69,11 @@ class EventController:
                     event.contract_id = contract_id
                 if client_id is not None:
                     event.client_id = client_id
-                if event_name and DataValidator.validate_not_empty(event_name):
+                if event_name:
                     event.event_name = event_name
-                if event_date_start and DataValidator.validate_datetime(event_date_start):
+                if event_date_start:
                     event.event_date_start = event_date_start
-                if event_date_end and DataValidator.validate_datetime(event_date_end):
+                if event_date_end:
                     event.event_date_end = event_date_end
                 if location:
                     event.location = location
