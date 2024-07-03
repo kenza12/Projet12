@@ -3,7 +3,6 @@ from models.client import Client
 import sentry_sdk
 from utils.token_manager import TokenManager
 from utils.session_manager import get_session
-from utils.data_validator import DataValidator
 from datetime import date
 
 
@@ -36,10 +35,6 @@ class ClientController:
         """
         try:
             session = get_session()
-            if not (DataValidator.validate_not_empty(full_name) and DataValidator.validate_email(email) and
-                    DataValidator.validate_phone(phone)):
-                raise ValueError("Invalid data provided for creating client.")
-
             client = Client(full_name=full_name, email=email, phone=phone, company_name=company_name, date_created=date_created, commercial_contact_id=commercial_contact_id)
             session.add(client)
             session.commit()
@@ -50,21 +45,21 @@ class ClientController:
             return False
 
     @staticmethod
-    def update_client(client_name: str, full_name: str = None, email: str = None, phone: str = None, company_name: str = None) -> bool:
+    def update_client(client_id: int, full_name: str = None, email: str = None, phone: str = None, company_name: str = None) -> bool:
         """
         Updates an existing client if data is valid.
         """
         try:
             session = get_session()
-            client = session.query(Client).filter_by(full_name=client_name).first()
+            client = session.query(Client).filter_by(id=client_id).first()
             if not client:
                 raise ValueError("Client not found.")
 
-            if full_name and DataValidator.validate_not_empty(full_name):
+            if full_name:
                 client.full_name = full_name
-            if email and DataValidator.validate_email(email):
+            if email:
                 client.email = email
-            if phone and DataValidator.validate_phone(phone):
+            if phone:
                 client.phone = phone
             if company_name:
                 client.company_name = company_name

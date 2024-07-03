@@ -154,7 +154,7 @@ class UserController:
         """
         try:
             session = get_session()
-            user = session.query(User).filter_by(name=username).first()
+            user = session.query(User).filter_by(username=username).first()
             if user:
                 return user.id
             return None
@@ -178,6 +178,40 @@ class UserController:
                 print(f"User ID for {name}: {user.id}")
                 return user.id
             return None
+        except Exception as e:
+            sentry_sdk.capture_exception(e)
+            return None
+        
+    @staticmethod
+    def user_exists(user_id: int) -> bool:
+        """
+        Check if a user with the given ID exists in the database.
+        Args:
+            user_id (int): The ID of the user.
+        Returns:
+            bool: True if the user exists, otherwise False.
+        """
+        try:
+            session = get_session()
+            user = session.query(User).filter_by(id=user_id).first()
+            return user is not None
+        except Exception as e:
+            sentry_sdk.capture_exception(e)
+            return False
+
+    @staticmethod
+    def get_user_by_id(user_id: int) -> User:
+        """
+        Retrieve the user based on the user's ID.
+        Args:
+            user_id (int): The ID of the user.
+        Returns:
+            User: The User object if found, otherwise None.
+        """
+        try:
+            session = get_session()
+            user = session.query(User).filter_by(id=user_id).first()
+            return user
         except Exception as e:
             sentry_sdk.capture_exception(e)
             return None
