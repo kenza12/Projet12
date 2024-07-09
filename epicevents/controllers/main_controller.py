@@ -13,12 +13,9 @@ import keyring
 from controllers.client_controller import ClientController
 from controllers.contract_controller import ContractController
 from controllers.event_controller import EventController
-from utils.session_manager import get_session_root
-from datetime import datetime
+from utils.session_manager import get_session_root, get_session
+from datetime import datetime, date
 from utils.permissions import PermissionManager
-from utils.session_manager import get_session
-from datetime import date
-
 
 load_dotenv()
 
@@ -27,6 +24,10 @@ class MainController:
     """
     Manage database initialization, user authentication, token management, and CLI operations.
     """
+
+    @staticmethod
+    def set_use_test_database(use_test: bool):
+        Config.set_use_test_database(use_test)
 
     @staticmethod
     def initialize_database() -> bool:
@@ -70,7 +71,6 @@ class MainController:
         """
         try:
             session = get_session_root()
-
             if UserController.authenticate_user(session, username, password):
                 user = session.query(User).filter_by(username=username).first()
                 key = Fernet.generate_key().decode()
@@ -275,7 +275,6 @@ class MainController:
                     user = session.query(User).filter_by(id=payload['user_id']).first()
                     permission_check_method = getattr(PermissionManager, f"can_{action}", None)
                     if permission_check_method and permission_check_method(user):
-                        print ("*********ALLOWED************")
                         return token, user, True
         except Exception as e:
             sentry_sdk.capture_exception(e)
@@ -577,7 +576,7 @@ class MainController:
             return "You are not authorized to perform this action."
 
     @staticmethod
-    def update_client(client_name: str, full_name: str = None, email: str = None, phone: str = None, company_name: str = None) -> str:
+    def update_client(client_id: int, full_name: str = None, email: str = None, phone: str = None, company_name: str = None) -> str:
         """
         Update an existing client if the user is authorized.
         Returns:
@@ -586,7 +585,7 @@ class MainController:
         token, user, authorized = MainController.verify_authentication_and_authorization('update_client')
         if authorized:
             try:
-                success = ClientController.update_client(client_name, full_name, email, phone, company_name)
+                success = ClientController.update_client(client_id, full_name, email, phone, company_name)
                 if success:
                     return "Client updated successfully."
                 else:

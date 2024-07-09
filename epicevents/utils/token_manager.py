@@ -4,8 +4,7 @@ from jwt.exceptions import ExpiredSignatureError, InvalidTokenError, InvalidSign
 from models.user import User
 import sentry_sdk
 from config import Config
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
+from utils.session_manager import get_session_root
 import keyring
 import json
 from cryptography.fernet import Fernet
@@ -120,7 +119,7 @@ class TokenManager:
             return True
 
     @staticmethod
-    def refresh_token(refresh_token: str, key: str) -> str:
+    def refresh_token(refresh_token: str, key: str, test=False) -> str:
         """
         Refreshes the JWT token using the given refresh token.
 
@@ -135,9 +134,7 @@ class TokenManager:
             payload = TokenManager.verify_token(refresh_token, key)
             user_id = payload['user_id']
             
-            engine = create_engine(Config.get_db_uri(Config.ADMIN_DB_USER, Config.ADMIN_DB_PASSWORD))
-            Session = sessionmaker(bind=engine)
-            session = Session()
+            session = get_session_root(test=test)
             user = session.query(User).filter_by(id=user_id).first()
             
             if user:

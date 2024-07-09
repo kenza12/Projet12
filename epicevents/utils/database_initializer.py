@@ -11,15 +11,13 @@ from models.event import Event
 class DatabaseInitializer:
     """Creating the database and setting up the non-privileged user."""
 
-    def __init__(self, test=False):
+    def __init__(self):
         """
         Initializes the DatabaseInitializer with the admin database URI without specifying the database name.
         It also creates an SQLAlchemy engine for connecting to the MySQL server using the constructed URI.
         """
         try:
-            self.test = test
             self.admin_db_uri = f"mysql+mysqlconnector://{Config.ADMIN_DB_USER}:{Config.ADMIN_DB_PASSWORD}@{Config.DB_HOST}:{Config.DB_PORT}/"
-            self.user_db_uri = Config.get_db_uri(Config.DB_USER, Config.DB_PASSWORD, test)
             self.engine = create_engine(self.admin_db_uri)
         except Exception as e:
             sentry_sdk.capture_exception(e)
@@ -30,7 +28,7 @@ class DatabaseInitializer:
         Creates the database if it does not already exist using the admin user.
         """
         try:
-            db_name = Config.TEST_DB_NAME if self.test else Config.DB_NAME
+            db_name = Config.TEST_DB_NAME if Config.get_use_test_database() else Config.DB_NAME
             with self.engine.connect() as connection:
                 print(f"Creating database {db_name}...")
                 connection.execute(text(f"CREATE DATABASE IF NOT EXISTS {db_name} CHARACTER SET UTF8"))
@@ -44,7 +42,7 @@ class DatabaseInitializer:
         Creates a non-privileged user and grants necessary privileges.
         """
         try:
-            db_name = Config.TEST_DB_NAME if self.test else Config.DB_NAME
+            db_name = Config.TEST_DB_NAME if Config.get_use_test_database() else Config.DB_NAME
             with self.engine.connect() as connection:
                 print("Creating user...")
                 create_user_sql = text(f"CREATE USER IF NOT EXISTS '{Config.DB_USER}'@'localhost' IDENTIFIED BY '{Config.DB_PASSWORD}'")
@@ -61,7 +59,7 @@ class DatabaseInitializer:
         Creates tables for the defined models using the admin user.
         """
         try:
-            db_name = Config.TEST_DB_NAME if self.test else Config.DB_NAME
+            db_name = Config.TEST_DB_NAME if Config.get_use_test_database() else Config.DB_NAME
             engine_with_db = create_engine(f"{self.admin_db_uri}{db_name}")
             print("Creating tables...")
             Base.metadata.create_all(engine_with_db)
@@ -72,22 +70,28 @@ class DatabaseInitializer:
 
     def create_departments(self):
         """
-        Creates unique departments using the admin user.
+        Creates unique departments with specific IDs using the admin user.
         """
         try:
-            db_name = Config.TEST_DB_NAME if self.test else Config.DB_NAME
+            db_name = Config.TEST_DB_NAME if Config.get_use_test_database() else Config.DB_NAME
             engine_with_db = create_engine(f"{self.admin_db_uri}{db_name}")
             Session = sessionmaker(bind=engine_with_db)
             session = Session()
 
-            departments = ["Commercial", "Support", "Gestion"]
-            for dept_name in departments:
-                existing_dept = session.query(Department).filter_by(name=dept_name).first()
+            departments = {
+                1: "Commercial",
+                2: "Support",
+                3: "Gestion"
+            }
+            
+            for dept_id, dept_name in departments.items():
+                existing_dept = session.query(Department).filter_by(id=dept_id).first()
                 if not existing_dept:
-                    department = Department(name=dept_name)
+                    department = Department(id=dept_id, name=dept_name)
                     session.add(department)
             session.commit()
             print("Departments created successfully.")
+
         except Exception as e:
             sentry_sdk.capture_exception(e)
             print(f"Error creating departments: {e}")

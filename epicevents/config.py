@@ -3,7 +3,6 @@ import os
 import sentry_sdk
 from sqlalchemy.ext.declarative import declarative_base
 
-
 def reload_environment():
     """
     Load environment variables
@@ -37,6 +36,16 @@ class Config:
     ADMIN_DB_USER = os.getenv('ADMIN_DB_USER')
     ADMIN_DB_PASSWORD = os.getenv('ADMIN_DB_PASSWORD')
     SENTRY_DSN = os.getenv('SENTRY_DSN')
+    USE_TEST_DATABASE = False  # Variable to control the use of test database
+
+    @staticmethod
+    def set_use_test_database(value: bool):
+        Config.USE_TEST_DATABASE = value
+        print(f"USE_TEST_DATABASE set to: {Config.USE_TEST_DATABASE}")
+
+    @staticmethod
+    def get_use_test_database() -> bool:
+        return Config.USE_TEST_DATABASE
 
     @staticmethod
     def get_db_uri(user=None, password=None, test=False):
@@ -47,14 +56,17 @@ class Config:
         Args:
             user (str): The database user.
             password (str): The database user's password.
-            test (bool): Use test database if True.
+            test (bool): Flag to indicate if test database should be used.
 
         Returns:
             str: The constructed database URI.
         """
         user = user or Config.DB_USER
         password = password or Config.DB_PASSWORD
-        db_name = Config.TEST_DB_NAME if test else Config.DB_NAME
+        db_name = Config.TEST_DB_NAME if test or Config.get_use_test_database() else Config.DB_NAME
+        print("******db_name_config******************")
+        print(db_name)
+        print(f"mysql+mysqlconnector://{user}:{password}@{Config.DB_HOST}:{Config.DB_PORT}/{db_name}")
         return f"mysql+mysqlconnector://{user}:{password}@{Config.DB_HOST}:{Config.DB_PORT}/{db_name}"
 
     @staticmethod
