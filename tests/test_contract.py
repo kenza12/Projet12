@@ -1,4 +1,3 @@
-# test_contract.py
 import unittest
 from models.contract import Contract
 from models.client import Client
@@ -8,9 +7,9 @@ from controllers.main_controller import MainController
 import os
 
 
-class TestContractIntegration(BaseTest):
+class TestContract(BaseTest):
     """
-    TestContractIntegration class performs integration tests for contract-related operations in the EpicEvents application.
+    TestContract class performs integration tests for contract-related operations in the EpicEvents application.
     This includes creating contracts, ensuring that unauthorized users cannot create contracts, and updating contract information.
     """
 

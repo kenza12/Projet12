@@ -1,10 +1,10 @@
-# base_test.py
 import unittest
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker
 from config import Config
 from utils.database_initializer import DatabaseInitializer
 from controllers.main_controller import MainController
+
 
 class BaseTest(unittest.TestCase):
     """

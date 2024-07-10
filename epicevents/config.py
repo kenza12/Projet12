@@ -41,7 +41,6 @@ class Config:
     @staticmethod
     def set_use_test_database(value: bool):
         Config.USE_TEST_DATABASE = value
-        print(f"USE_TEST_DATABASE set to: {Config.USE_TEST_DATABASE}")
 
     @staticmethod
     def get_use_test_database() -> bool:
@@ -64,9 +63,6 @@ class Config:
         user = user or Config.DB_USER
         password = password or Config.DB_PASSWORD
         db_name = Config.TEST_DB_NAME if test or Config.get_use_test_database() else Config.DB_NAME
-        print("******db_name_config******************")
-        print(db_name)
-        print(f"mysql+mysqlconnector://{user}:{password}@{Config.DB_HOST}:{Config.DB_PORT}/{db_name}")
         return f"mysql+mysqlconnector://{user}:{password}@{Config.DB_HOST}:{Config.DB_PORT}/{db_name}"
 
     @staticmethod

@@ -5,9 +5,10 @@ from models.user import User
 from models.department import Department
 import os
 
-class TestUserManagement(BaseTest):
+
+class TestUser(BaseTest):
     """
-    TestUserManagement class performs integration tests for user-related operations in the EpicEvents application.
+    TestUser class performs integration tests for user-related operations in the EpicEvents application.
     This includes creating, updating, and deleting collaborators.
     """
 

@@ -1,4 +1,3 @@
-# test_client.py
 import unittest
 from models.client import Client
 from base_test import BaseTest
@@ -6,9 +5,9 @@ from controllers.main_controller import MainController
 import os
 
 
-class TestClientIntegration(BaseTest):
+class TestClient(BaseTest):
     """
-    TestClientIntegration class performs integration tests for client-related operations in the EpicEvents application.
+    TestClient class performs integration tests for client-related operations in the EpicEvents application.
     This includes creating clients, ensuring that unauthorized users cannot create clients, and updating client information.
     """
 
