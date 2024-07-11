@@ -11,6 +11,7 @@ from cryptography.fernet import Fernet
 
 SERVICE_NAME = "EpicEvents"
 
+
 class TokenManager:
     """
     Manages JWT creation, verification, and storage/retrieval of tokens for users.
@@ -34,7 +35,7 @@ class TokenManager:
                 'user_id': user.id,
                 'username': user.username,
                 'department': user.department.name,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)
             }
             token = jwt.encode(payload, secret_key, algorithm='HS256')
             return token

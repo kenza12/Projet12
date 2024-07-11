@@ -61,13 +61,12 @@ def login(username, password, test):
 
 @cli.command()
 @click.option('--username', prompt='Username', help='The username of the user')
-@click.option('--password', prompt=True, hide_input=True, help='The password of the user')
-def refresh(username, password):
+def refresh(username):
     """
     Refresh the JWT token using the refresh token.
     """
     try:
-        new_token = MainController.refresh_token(username, password)
+        new_token = MainController.refresh_token(username)
         if new_token:
             console.print(f"Token refreshed successfully. Your new token has been stored.", style="bold green")
         else:

@@ -138,13 +138,12 @@ class MainController:
             return False
 
     @staticmethod
-    def refresh_token(username: str, password: str) -> str:
+    def refresh_token(username: str) -> str:
         """
         Refreshes the JWT token using the refresh token.
         
         Args:
             username (str): The username of the user.
-            password (str): The password of the user.
         
         Returns:
             str: The newly generated JWT token if refresh is successful, otherwise None.

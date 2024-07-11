@@ -8,6 +8,7 @@ from models.client import Client
 from models.contract import Contract
 from models.event import Event
 
+
 class DatabaseInitializer:
     """Creating the database and setting up the non-privileged user."""
 
