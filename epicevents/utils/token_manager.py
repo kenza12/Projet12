@@ -118,8 +118,7 @@ class TokenManager:
             sentry_sdk.capture_exception(e)
             return True
 
-    @staticmethod
-    def refresh_token(refresh_token: str, key: str, test=False) -> str:
+    def refresh_token(refresh_token: str, key: str) -> str:
         """
         Refreshes the JWT token using the given refresh token.
 
@@ -131,19 +130,27 @@ class TokenManager:
             str: The newly generated JWT token.
         """
         try:
+            # Verify the refresh token first
             payload = TokenManager.verify_token(refresh_token, key)
             user_id = payload['user_id']
-            
-            session = get_session_root(test=test)
+
+            session = get_session_root()
             user = session.query(User).filter_by(id=user_id).first()
-            
+
             if user:
+                # Check if the refresh token is expired
+                if TokenManager.is_token_expired(refresh_token, key):
+                    print("Refresh token has expired")
+                    raise InvalidTokenError("Refresh token has expired.")
+
+                # Generate a new token
                 new_token = TokenManager.generate_token(user, key)
                 return new_token
             else:
                 raise InvalidTokenError("User not found.")
         except Exception as e:
             sentry_sdk.capture_exception(e)
+            print(f"Failed to refresh token for user_id {user_id} with error: {e}")
             raise
 
     @staticmethod

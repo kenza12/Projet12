@@ -6,6 +6,7 @@ from views.user_views import create_collaborator, update_collaborator, delete_co
 from views.contract_views import create_contract, update_contract, get_contracts, filter_contracts
 from views.event_views import get_events, update_event, filter_events, create_event_commercial
 from config import Config
+from jwt.exceptions import InvalidTokenError
 
 console = Console()
 
@@ -38,13 +39,13 @@ def initialize():
 @cli.command()
 @click.option('--username', prompt='Username', help='The username of the user')
 @click.option('--password', prompt=True, hide_input=True, help='The password of the user')
-@click.option('--test', is_flag=True, help='Use test database')  # Ajoutez cette ligne
-def login(username, password, test):  # Ajoutez `test` comme argument
+@click.option('--test', is_flag=True, help='Use test database')
+def login(username, password, test):
     """
     Authenticate a user and generate JWT and refresh tokens.
     """
     if test:
-        Config.set_use_test_database(True)  # Utilisez la base de données de test si l'indicateur est présent
+        Config.set_use_test_database(True)
 
     if not MainController.is_database_initialized():
         console.print("[bold red]Database is not initialized. Please run 'initialize' first.[/bold red]")
@@ -65,11 +66,16 @@ def refresh(username, password):
     """
     Refresh the JWT token using the refresh token.
     """
-    new_token = MainController.refresh_token(username, password)
-    if new_token:
-        console.print(f"Token refreshed successfully. Your new token has been stored.", style="bold green")
-    else:
-        console.print("[bold red]Failed to refresh token. No active session found, please login first.[/bold red]")
+    try:
+        new_token = MainController.refresh_token(username, password)
+        if new_token:
+            console.print(f"Token refreshed successfully. Your new token has been stored.", style="bold green")
+        else:
+            console.print("[bold red]Failed to refresh token. No active session found, please login first.[/bold red]")
+    except InvalidTokenError as e:
+        console.print(f"[bold red]Failed to refresh token: {str(e)}[/bold red]")
+    except Exception as e:
+        console.print(f"[bold red]An error occurred: {str(e)}[/bold red]")
 
 
 @cli.command()
