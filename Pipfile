@@ -16,6 +16,8 @@ pyjwt = "*"
 cryptography = "*"
 keyring = "*"
 "keyrings.alt" = "*"
+pytest-cov = "*"
+pexpect = "*"
 
 [dev-packages]
 

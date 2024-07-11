@@ -362,5 +362,97 @@ class TestContract(BaseTest):
         contracts = MainController.get_contracts()
         self.assertTrue(len(contracts) > 0, "No contracts found")
 
+    def test_filter_contracts(self):
+        """Test filtering contracts as a commercial user."""
+
+        # Authenticate as a commercial user
+        self.authenticate_user(os.getenv("USER1_USERNAME"), os.getenv("USER1_PASSWORD"))
+
+        # Create a new client
+        result = MainController.create_client(
+            full_name="Filter Contracts Test Client",
+            email="filtercontractstestclient@example.com",
+            phone="1234567890",
+            company_name="Filter Contracts Company"
+        )
+        print("Create client result:", result)
+        self.assertIn("Client created successfully.", result, "Failed to create client")
+        self.session.commit()
+
+        # Verify that the client was created
+        client = self.session.query(Client).filter_by(email="filtercontractstestclient@example.com").first()
+        self.assertIsNotNone(client, "Client not found in the database")
+        client_id = client.id
+
+        # Reopen session
+        self.reopen_session()
+
+        # Authenticate as a management user to create contracts
+        self.authenticate_user(os.getenv("USER3_USERNAME"), os.getenv("USER3_PASSWORD"))
+
+        # Create a signed contract
+        result = MainController.create_contract(
+            client_id=client_id,
+            total_amount=5000.0,
+            amount_due=0.0,
+            signed=True
+        )
+        print("Create signed contract result:", result)
+        self.assertIn("Contract created successfully.", result, "Failed to create signed contract")
+        self.session.commit()
+        self.reopen_session()
+
+        # Create an unsigned contract
+        result = MainController.create_contract(
+            client_id=client_id,
+            total_amount=6000.0,
+            amount_due=6000.0,
+            signed=False
+        )
+        print("Create unsigned contract result:", result)
+        self.assertIn("Contract created successfully.", result, "Failed to create unsigned contract")
+        self.session.commit()
+        self.reopen_session()
+
+        # Create a partially paid contract
+        result = MainController.create_contract(
+            client_id=client_id,
+            total_amount=7000.0,
+            amount_due=3500.0,
+            signed=True
+        )
+        print("Create partially paid contract result:", result)
+        self.assertIn("Contract created successfully.", result, "Failed to create partially paid contract")
+        self.session.commit()
+        self.reopen_session()
+
+        # Re-authenticate as a commercial user to filter contracts
+        self.authenticate_user(os.getenv("USER1_USERNAME"), os.getenv("USER1_PASSWORD"))
+
+        # Filter unsigned contracts
+        try:
+            filters = {'signed': False}
+            contracts = MainController.filter_contracts(filters)
+            print("Unsigned contracts:", contracts)  # Log the contracts
+            self.assertTrue(len(contracts) > 0, "No unsigned contracts found")
+            for contract in contracts:
+                self.assertFalse(contract.signed, "Found a signed contract in unsigned contracts filter")
+        except PermissionError as e:
+            self.fail(f"Permission error: {e}")
+
+        # Reopen session before the next filter
+        self.reopen_session()
+
+        # Filter unpaid contracts
+        try:
+            filters = {'unpaid': True}
+            contracts = MainController.filter_contracts(filters)
+            print("Unpaid contracts:", contracts)  # Log the contracts
+            self.assertTrue(len(contracts) > 0, "No unpaid contracts found")
+            for contract in contracts:
+                self.assertGreater(contract.amount_due, 0, "Found a fully paid contract in unpaid contracts filter")
+        except PermissionError as e:
+            self.fail(f"Permission error: {e}")
+
 if __name__ == '__main__':
     unittest.main()

@@ -5,6 +5,7 @@ from views.client_views import create_client, update_client, get_clients
 from views.user_views import create_collaborator, update_collaborator, delete_collaborator
 from views.contract_views import create_contract, update_contract, get_contracts, filter_contracts
 from views.event_views import get_events, update_event, filter_events, create_event_commercial
+from config import Config
 
 console = Console()
 
@@ -37,10 +38,14 @@ def initialize():
 @cli.command()
 @click.option('--username', prompt='Username', help='The username of the user')
 @click.option('--password', prompt=True, hide_input=True, help='The password of the user')
-def login(username, password):
+@click.option('--test', is_flag=True, help='Use test database')  # Ajoutez cette ligne
+def login(username, password, test):  # Ajoutez `test` comme argument
     """
     Authenticate a user and generate JWT and refresh tokens.
     """
+    if test:
+        Config.set_use_test_database(True)  # Utilisez la base de données de test si l'indicateur est présent
+
     if not MainController.is_database_initialized():
         console.print("[bold red]Database is not initialized. Please run 'initialize' first.[/bold red]")
         return

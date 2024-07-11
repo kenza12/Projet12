@@ -1,0 +1,6 @@
+[run]
+data_file = tests/coverage/.coverage
+source = epicevents
+
+[html]
+directory = tests/coverage/htmlcov

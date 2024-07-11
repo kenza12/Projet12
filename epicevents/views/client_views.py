@@ -25,6 +25,7 @@ def create_client():
 
     result_message = MainController.create_client(**data)
     console.print(f"[bold green]{result_message}[/bold green]" if "successfully" in result_message else f"[bold red]{result_message}[/bold red]")
+    print ("*************CREATE_CLIENT********************")
 
 
 def update_client():
