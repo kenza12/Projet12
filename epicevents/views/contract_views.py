@@ -6,6 +6,7 @@ from utils.data_validator import DataValidator
 
 console = Console()
 
+
 def create_contract():
     """
     Prompt the user for details to create a new contract.
@@ -19,7 +20,7 @@ def create_contract():
         
         total_amount = DataValidator.prompt_and_validate("Total Amount: ", DataValidator.validate_float, "Total Amount")
         console.print("[bold blue]If there is no amount due, enter 0.[/bold blue]")
-        amount_due = DataValidator.prompt_and_validate("Amount Due: ", DataValidator.validate_float, "Amount Due", False)
+        amount_due = DataValidator.prompt_and_validate("Amount Due: ", lambda value: DataValidator.validate_float(value, "Amount Due", False, True))
         signed = DataValidator.prompt_and_validate("Signed (True/False): ", DataValidator.validate_boolean, "Signed").lower() == 'true'
 
         result_message = MainController.create_contract(int(client_id), float(total_amount), float(amount_due), signed)
@@ -28,6 +29,7 @@ def create_contract():
         console.print(f"[bold red]Input Error: {ve}[/bold red]")
     except Exception as e:
         console.print(f"[bold red]Error: {e}[/bold red]")
+
 
 def update_contract():
     """
@@ -58,6 +60,7 @@ def update_contract():
     except Exception as e:
         console.print(f"[bold red]Error: {e}[/bold red]")
 
+
 def get_contracts():
     """
     Retrieve and display all contracts if the user is authenticated and authorized.
@@ -77,6 +80,7 @@ def get_contracts():
         print_table(contract_data, title="Contracts")
     else:
         console.print("[bold red]No contracts found or you are not authorized to view them.[/bold red]")
+
 
 def filter_contracts():
     console.print("[bold blue]Filter Contracts[/bold blue]")

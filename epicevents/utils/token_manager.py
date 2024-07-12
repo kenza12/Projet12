@@ -35,7 +35,7 @@ class TokenManager:
                 'user_id': user.id,
                 'username': user.username,
                 'department': user.department.name,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
             }
             token = jwt.encode(payload, secret_key, algorithm='HS256')
             return token

@@ -411,13 +411,10 @@ class MainController:
         if authorized_support or authorized_gestion:
             try:
                 if authorized_gestion and support_contact_id is not None:
-                    # If Gestion department, only update support_contact_id
+                    # If Gestion department, update support_contact_id
                     success = EventController.update_event(token_gestion, user_gestion, event_id, support_contact_id=support_contact_id)
                 elif authorized_support:
-                    # If Support department, update all fields
-                    event = EventController.get_event_by_id(event_id)
-                    if event.support_contact_id != user.id:
-                        return "You are not authorized to update this event."
+                    # If Support department, update all fields of the events they are responsible for.
                     success = EventController.update_event(token, user, event_id, contract_id, client_id, event_name, event_date_start, event_date_end, support_contact_id, location, attendees, notes)
                 else:
                     return "You are not authorized to update events."

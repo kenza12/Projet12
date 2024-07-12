@@ -3,6 +3,7 @@ from controllers.main_controller import MainController
 from controllers.client_controller import ClientController
 from controllers.user_controller import UserController
 from controllers.contract_controller import ContractController
+from controllers.event_controller import EventController
 from utils.table_printer import print_table
 from utils.data_validator import DataValidator
 
@@ -72,18 +73,28 @@ def create_event_commercial():
     except Exception as e:
         console.print(f"[bold red]Error: {e}[/bold red]")
 
+
 def update_event():
     """
     Prompt the user for details to update an existing event for support and gestion teams.
     """
     username = MainController.get_current_user()
     user_role = MainController.get_user_role(username)
+    user_id = UserController.get_user_id_by_username(username)
 
     event_id = DataValidator.prompt_and_validate("Event ID: ", DataValidator.validate_id, "Event ID")
     support_contact_id = None
 
+    if user_role == "Support":
+        # Check if the support user is authorized to modify this event.
+        event = EventController.get_event_by_id(event_id)
+        if event.support_contact_id != user_id:
+            console.print("[bold red]You are not authorized to update this event.[/bold red]")
+            return
+
     update_data = {}
 
+    # If Support department, update all fields of the events they are responsible for.
     if user_role == "Support":
         contract_id = DataValidator.prompt_and_validate("Contract ID (leave blank to skip): ", DataValidator.validate_id, "Contract ID", allow_empty=True)
         client_id = DataValidator.prompt_and_validate("Client ID (leave blank to skip): ", DataValidator.validate_id, "Client ID", allow_empty=True)

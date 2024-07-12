@@ -107,16 +107,20 @@ class DataValidator:
             return False
 
     @staticmethod
-    def validate_float(value: str, field_name: str, positive: bool = True) -> bool:
+    def validate_float(value: str, field_name: str, positive: bool = True, allow_zero: bool = False) -> bool:
         """
-        Validates that a value is a float, optionally positive.
+        Validates that a value is a float, optionally positive and optionally allows zero.
         """
         try:
-            if positive and float(value) <= 0:
+            float_value = float(value)
+            if positive and float_value < 0:
                 console.print(f"[bold red]{field_name} must be a positive number.[/bold red]")
                 return False
-            elif not positive and float(value) < 0:
+            elif not positive and float_value < 0:
                 console.print(f"[bold red]{field_name} cannot be negative.[/bold red]")
+                return False
+            if not allow_zero and float_value == 0:
+                console.print(f"[bold red]{field_name} cannot be zero.[/bold red]")
                 return False
             return True
         except ValueError:
