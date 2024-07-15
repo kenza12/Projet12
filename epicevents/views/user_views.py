@@ -23,10 +23,16 @@ def create_collaborator():
     console.print("|  3 | Gestion    |")
     console.print("+----+------------+")
 
-    department_id = DataValidator.prompt_and_validate("Department ID: ", DataValidator.validate_department_id, "Department ID")
+    department_id = DataValidator.prompt_and_validate(
+        "Department ID: ", DataValidator.validate_department_id, "Department ID"
+    )
 
     result_message = MainController.create_collaborator(username, password, email, name, int(department_id))
-    console.print(f"[bold green]{result_message}[/bold green]" if "successfully" in result_message else f"[bold red]{result_message}[/bold red]")
+    console.print(
+        f"[bold green]{result_message}[/bold green]"
+        if "successfully" in result_message
+        else f"[bold red]{result_message}[/bold red]"
+    )
 
 
 def update_collaborator():
@@ -35,10 +41,18 @@ def update_collaborator():
     """
     try:
         user_id = DataValidator.prompt_and_validate("User ID: ", DataValidator.validate_existing_user_id, "User ID")
-        username = DataValidator.prompt_and_validate("Username (leave blank to skip): ", DataValidator.validate_string, "Username", allow_empty=True)
-        password = DataValidator.prompt_and_validate("Password (leave blank to skip): ", DataValidator.validate_string, "Password", allow_empty=True)
-        email = DataValidator.prompt_and_validate("Email (leave blank to skip): ", DataValidator.validate_email, allow_empty=True)
-        name = DataValidator.prompt_and_validate("Name (leave blank to skip): ", DataValidator.validate_string, "Name", allow_empty=True)
+        username = DataValidator.prompt_and_validate(
+            "Username (leave blank to skip): ", DataValidator.validate_string, "Username", allow_empty=True
+        )
+        password = DataValidator.prompt_and_validate(
+            "Password (leave blank to skip): ", DataValidator.validate_string, "Password", allow_empty=True
+        )
+        email = DataValidator.prompt_and_validate(
+            "Email (leave blank to skip): ", DataValidator.validate_email, allow_empty=True
+        )
+        name = DataValidator.prompt_and_validate(
+            "Name (leave blank to skip): ", DataValidator.validate_string, "Name", allow_empty=True
+        )
 
         console.print("[bold blue]Departments:[/bold blue]")
         console.print("+----+------------+")
@@ -49,8 +63,16 @@ def update_collaborator():
         console.print("|  3 | Gestion    |")
         console.print("+----+------------+")
 
-        department_id = DataValidator.prompt_and_validate("Department ID (leave blank to skip): ", DataValidator.validate_department_id, "Department ID", allow_empty=True) or None
-        
+        department_id = (
+            DataValidator.prompt_and_validate(
+                "Department ID (leave blank to skip): ",
+                DataValidator.validate_department_id,
+                "Department ID",
+                allow_empty=True,
+            )
+            or None
+        )
+
         update_data = {}
         if username:
             update_data["username"] = username
@@ -64,7 +86,11 @@ def update_collaborator():
             update_data["department_id"] = int(department_id)
 
         result_message = MainController.update_collaborator(int(user_id), **update_data)
-        console.print(f"[bold green]{result_message}[/bold green]" if "successfully" in result_message else f"[bold red]{result_message}[/bold red]")
+        console.print(
+            f"[bold green]{result_message}[/bold green]"
+            if "successfully" in result_message
+            else f"[bold red]{result_message}[/bold red]"
+        )
     except ValueError as ve:
         console.print(f"[bold red]Input Error: {ve}[/bold red]")
     except Exception as e:
@@ -77,4 +103,8 @@ def delete_collaborator():
     """
     user_id = DataValidator.prompt_and_validate("User ID: ", DataValidator.validate_existing_user_id, "User ID")
     result_message = MainController.delete_collaborator(int(user_id))
-    console.print(f"[bold green]{result_message}[/bold green]" if "successfully" in result_message else f"[bold red]{result_message}[/bold red]")
+    console.print(
+        f"[bold green]{result_message}[/bold green]"
+        if "successfully" in result_message
+        else f"[bold red]{result_message}[/bold red]"
+    )

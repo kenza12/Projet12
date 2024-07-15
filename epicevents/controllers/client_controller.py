@@ -1,4 +1,3 @@
-
 from models.client import Client
 import sentry_sdk
 from utils.token_manager import TokenManager
@@ -29,13 +28,22 @@ class ClientController:
             return []
 
     @staticmethod
-    def create_client(full_name: str, email: str, phone: str, company_name: str, date_created: date, commercial_contact_id: int) -> bool:
+    def create_client(
+        full_name: str, email: str, phone: str, company_name: str, date_created: date, commercial_contact_id: int
+    ) -> bool:
         """
         Creates a new client if data is valid.
         """
         try:
             session = get_session()
-            client = Client(full_name=full_name, email=email, phone=phone, company_name=company_name, date_created=date_created, commercial_contact_id=commercial_contact_id)
+            client = Client(
+                full_name=full_name,
+                email=email,
+                phone=phone,
+                company_name=company_name,
+                date_created=date_created,
+                commercial_contact_id=commercial_contact_id,
+            )
             session.add(client)
             session.commit()
             return True
@@ -45,7 +53,9 @@ class ClientController:
             return False
 
     @staticmethod
-    def update_client(client_id: int, full_name: str = None, email: str = None, phone: str = None, company_name: str = None) -> bool:
+    def update_client(
+        client_id: int, full_name: str = None, email: str = None, phone: str = None, company_name: str = None
+    ) -> bool:
         """
         Updates an existing client if data is valid.
         """
@@ -72,7 +82,7 @@ class ClientController:
             sentry_sdk.capture_exception(e)
             session.rollback()
             return False
-        
+
     @staticmethod
     def get_client_id_by_name(client_name: str) -> int:
         """
@@ -91,7 +101,7 @@ class ClientController:
         except Exception as e:
             sentry_sdk.capture_exception(e)
             return None
-        
+
     @staticmethod
     def get_commercial_contact_id(client_id: int) -> int:
         """

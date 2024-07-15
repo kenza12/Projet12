@@ -29,17 +29,34 @@ class EventController:
             return []
 
     @staticmethod
-    def create_event(contract_id: int, client_id: int, event_name: str, event_date_start: str, event_date_end: str,
-                     support_contact_id: int, location: str, attendees: int, notes: str) -> bool:
+    def create_event(
+        contract_id: int,
+        client_id: int,
+        event_name: str,
+        event_date_start: str,
+        event_date_end: str,
+        support_contact_id: int,
+        location: str,
+        attendees: int,
+        notes: str,
+    ) -> bool:
         """
         Creates a new event if data is valid.
         """
         try:
             session = get_session()
 
-            event = Event(contract_id=contract_id, client_id=client_id, event_name=event_name, event_date_start=event_date_start,
-                          event_date_end=event_date_end, support_contact_id=support_contact_id, location=location,
-                          attendees=attendees, notes=notes)
+            event = Event(
+                contract_id=contract_id,
+                client_id=client_id,
+                event_name=event_name,
+                event_date_start=event_date_start,
+                event_date_end=event_date_end,
+                support_contact_id=support_contact_id,
+                location=location,
+                attendees=attendees,
+                notes=notes,
+            )
             session.add(event)
             session.commit()
             return True
@@ -49,9 +66,20 @@ class EventController:
             return False
 
     @staticmethod
-    def update_event(token: str, user: User, event_id: int, contract_id: int = None, client_id: int = None, event_name: str = None,
-                     event_date_start: str = None, event_date_end: str = None, support_contact_id: int = None, location: str = None,
-                     attendees: int = None, notes: str = None) -> bool:
+    def update_event(
+        token: str,
+        user: User,
+        event_id: int,
+        contract_id: int = None,
+        client_id: int = None,
+        event_name: str = None,
+        event_date_start: str = None,
+        event_date_end: str = None,
+        support_contact_id: int = None,
+        location: str = None,
+        attendees: int = None,
+        notes: str = None,
+    ) -> bool:
         """
         Updates an existing event if data is valid.
         """
@@ -100,24 +128,24 @@ class EventController:
         try:
             session = get_session()
             query = session.query(Event)
-            if 'no_support' in filters and filters['no_support']:
+            if "no_support" in filters and filters["no_support"]:
                 query = query.filter(Event.support_contact_id.is_(None))
-            if 'support_contact_id' in filters:
-                query = query.filter(Event.support_contact_id == filters['support_contact_id'])
-            if 'client_id' in filters:
-                query = query.filter(Event.client_id == filters['client_id'])
-            if 'date_start' in filters:
-                date_start = filters['date_start']
+            if "support_contact_id" in filters:
+                query = query.filter(Event.support_contact_id == filters["support_contact_id"])
+            if "client_id" in filters:
+                query = query.filter(Event.client_id == filters["client_id"])
+            if "date_start" in filters:
+                date_start = filters["date_start"]
                 query = query.filter(func.date(Event.event_date_start) >= date_start)
-            if 'date_end' in filters:
-                date_end = filters['date_end']
+            if "date_end" in filters:
+                date_end = filters["date_end"]
                 query = query.filter(func.date(Event.event_date_end) <= date_end)
-            if 'location' in filters:
-                query = query.filter(Event.location == filters['location'])
-            if 'min_attendees' in filters:
-                query = query.filter(Event.attendees >= filters['min_attendees'])
-            if 'max_attendees' in filters:
-                query = query.filter(Event.attendees <= filters['max_attendees'])
+            if "location" in filters:
+                query = query.filter(Event.location == filters["location"])
+            if "min_attendees" in filters:
+                query = query.filter(Event.attendees >= filters["min_attendees"])
+            if "max_attendees" in filters:
+                query = query.filter(Event.attendees <= filters["max_attendees"])
             return query.all()
         except Exception as e:
             sentry_sdk.capture_exception(e)

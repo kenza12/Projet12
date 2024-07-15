@@ -17,7 +17,8 @@ class Client(Base):
         last_contact_date (date): Date of the last contact with the client.
         commercial_contact_id (int): Foreign key referencing the User (commercial contact).
     """
-    __tablename__ = 'Client'
+
+    __tablename__ = "Client"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     full_name = Column(String(100), nullable=False)
@@ -26,7 +27,7 @@ class Client(Base):
     company_name = Column(String(100), nullable=True)
     date_created = Column(Date, nullable=False)
     last_contact_date = Column(Date, nullable=True)
-    commercial_contact_id = Column(Integer, ForeignKey('User.id', ondelete='CASCADE'), nullable=True)
+    commercial_contact_id = Column(Integer, ForeignKey("User.id", ondelete="CASCADE"), nullable=True)
 
     commercial_contact = relationship("User", back_populates="clients")
     contracts = relationship("Contract", back_populates="client", cascade="all, delete")

@@ -54,7 +54,7 @@ class MainController:
         try:
             session = get_session_root()
             inspector = inspect(session.bind)
-            return 'User' in inspector.get_table_names()
+            return "User" in inspector.get_table_names()
         except Exception as e:
             sentry_sdk.capture_exception(e)
             return False
@@ -96,7 +96,7 @@ class MainController:
             departments = {
                 "Commercial": session.query(Department).filter_by(name="Commercial").first().id,
                 "Support": session.query(Department).filter_by(name="Support").first().id,
-                "Gestion": session.query(Department).filter_by(name="Gestion").first().id
+                "Gestion": session.query(Department).filter_by(name="Gestion").first().id,
             }
 
             users = [
@@ -105,31 +105,31 @@ class MainController:
                     "password": os.getenv("USER1_PASSWORD"),
                     "email": os.getenv("USER1_EMAIL"),
                     "name": os.getenv("USER1_NAME"),
-                    "department_id": departments[os.getenv("USER1_DEPARTMENT")]
+                    "department_id": departments[os.getenv("USER1_DEPARTMENT")],
                 },
                 {
                     "username": os.getenv("USER2_USERNAME"),
                     "password": os.getenv("USER2_PASSWORD"),
                     "email": os.getenv("USER2_EMAIL"),
                     "name": os.getenv("USER2_NAME"),
-                    "department_id": departments[os.getenv("USER2_DEPARTMENT")]
+                    "department_id": departments[os.getenv("USER2_DEPARTMENT")],
                 },
                 {
                     "username": os.getenv("USER3_USERNAME"),
                     "password": os.getenv("USER3_PASSWORD"),
                     "email": os.getenv("USER3_EMAIL"),
                     "name": os.getenv("USER3_NAME"),
-                    "department_id": departments[os.getenv("USER3_DEPARTMENT")]
-                }
+                    "department_id": departments[os.getenv("USER3_DEPARTMENT")],
+                },
             ]
 
             for user_data in users:
-                existing_user = session.query(User).filter_by(username=user_data['username']).first()
+                existing_user = session.query(User).filter_by(username=user_data["username"]).first()
                 if existing_user:
                     print(f"User {user_data['username']} already exists. Skipping creation.")
                 else:
                     UserController.create_user(session, **user_data)
-            
+
             print("Users creation process completed.")
             return True
         except Exception as e:
@@ -141,21 +141,21 @@ class MainController:
     def refresh_token(username: str) -> str:
         """
         Refreshes the JWT token using the refresh token.
-        
+
         Args:
             username (str): The username of the user.
-        
+
         Returns:
             str: The newly generated JWT token if refresh is successful, otherwise None.
         """
         try:
             tokens = TokenManager.load_tokens(username)
-            if tokens and 'refresh_token' in tokens and 'key' in tokens:
-                refresh_token = tokens['refresh_token']
-                key = tokens['key']
+            if tokens and "refresh_token" in tokens and "key" in tokens:
+                refresh_token = tokens["refresh_token"]
+                key = tokens["key"]
                 new_token = TokenManager.refresh_token(refresh_token, key)
                 if new_token:
-                    tokens['token'] = new_token
+                    tokens["token"] = new_token
                     TokenManager.save_tokens(username, tokens)
                     return new_token
             return None
@@ -174,8 +174,8 @@ class MainController:
             str: The status of the token ("expired", "active", or "no_token").
         """
         tokens = TokenManager.load_tokens(username)
-        if tokens and 'token' in tokens and 'key' in tokens:
-            if TokenManager.is_token_expired(tokens['token'], tokens['key']):
+        if tokens and "token" in tokens and "key" in tokens:
+            if TokenManager.is_token_expired(tokens["token"], tokens["key"]):
                 return "expired"
             else:
                 return "active"
@@ -186,7 +186,7 @@ class MainController:
     def logout() -> str:
         """
         Logs out the current user by deleting the stored tokens.
-        
+
         Returns:
             str: The status of the logout operation ("logged_out", "no_session", or error message).
         """
@@ -217,8 +217,8 @@ class MainController:
         if not username:
             return []
         tokens = TokenManager.load_tokens(username)
-        if tokens and 'token' in tokens and 'key' in tokens:
-            return ClientController.get_all_clients(tokens['token'])
+        if tokens and "token" in tokens and "key" in tokens:
+            return ClientController.get_all_clients(tokens["token"])
         return []
 
     @staticmethod
@@ -232,8 +232,8 @@ class MainController:
         if not username:
             return []
         tokens = TokenManager.load_tokens(username)
-        if tokens and 'token' in tokens and 'key' in tokens:
-            return ContractController.get_all_contracts(tokens['token'])
+        if tokens and "token" in tokens and "key" in tokens:
+            return ContractController.get_all_contracts(tokens["token"])
         return []
 
     @staticmethod
@@ -247,15 +247,15 @@ class MainController:
         if not username:
             return []
         tokens = TokenManager.load_tokens(username)
-        if tokens and 'token' in tokens and 'key' in tokens:
-            return EventController.get_all_events(tokens['token'])
+        if tokens and "token" in tokens and "key" in tokens:
+            return EventController.get_all_events(tokens["token"])
         return []
 
     @staticmethod
     def verify_authentication_and_authorization(action: str) -> tuple:
         """
         Verify the user's authentication and authorization for a specific action.
-        
+
         Args:
             action (str): The action to be authorized (e.g., 'create_client', 'update_contract').
 
@@ -266,12 +266,12 @@ class MainController:
             username = keyring.get_password(SERVICE_NAME, "current_user")
             tokens = TokenManager.load_tokens(username)
             if tokens:
-                token = tokens['token']
-                key = tokens['key']
+                token = tokens["token"]
+                key = tokens["key"]
                 payload = TokenManager.verify_token(token, key)
                 if payload:
                     session = get_session()
-                    user = session.query(User).filter_by(id=payload['user_id']).first()
+                    user = session.query(User).filter_by(id=payload["user_id"]).first()
                     permission_check_method = getattr(PermissionManager, f"can_{action}", None)
                     if permission_check_method and permission_check_method(user):
                         return token, user, True
@@ -280,33 +280,21 @@ class MainController:
         return None, None, False
 
     @staticmethod
-    def update_client(client_id: int, full_name: str = None, email: str = None, phone: str = None,
-                      company_name: str = None, last_contact_date: str = None) -> bool:
-        """
-        Update an existing client if the user is authorized.
-        """
-        token, user, authorized = MainController.verify_authentication_and_authorization('update_client')
-        if authorized:
-            try:
-                return ClientController.update_client(token, client_id, full_name, email, phone, company_name, last_contact_date)
-            except Exception as e:
-                sentry_sdk.capture_exception(e)
-        return False
-
-    @staticmethod
     def create_contract(client_id: int, total_amount: float, amount_due: float, signed: bool) -> str:
         """
         Create a new contract if the user is authorized.
         Returns:
             str: Message indicating the result of the operation.
         """
-        token, user, authorized = MainController.verify_authentication_and_authorization('create_contract')
+        token, user, authorized = MainController.verify_authentication_and_authorization("create_contract")
         if authorized:
             try:
                 date_created = datetime.now().date()
                 # Fetch the commercial_contact_id from the client
                 commercial_contact_id = ClientController.get_commercial_contact_id(client_id)
-                if ContractController.create_contract(client_id, commercial_contact_id, total_amount, amount_due, date_created, signed):
+                if ContractController.create_contract(
+                    client_id, commercial_contact_id, total_amount, amount_due, date_created, signed
+                ):
                     return "Contract created successfully."
                 else:
                     return "Failed to create contract. Please check the input data."
@@ -319,13 +307,19 @@ class MainController:
             return "You are not authorized to perform this action."
 
     @staticmethod
-    def update_contract(contract_id: int, client_id: int = None, total_amount: float = None, amount_due: float = None, signed: bool = None) -> str:
+    def update_contract(
+        contract_id: int,
+        client_id: int = None,
+        total_amount: float = None,
+        amount_due: float = None,
+        signed: bool = None,
+    ) -> str:
         """
         Update an existing contract if the user is authorized.
         Returns:
             str: Message indicating the result of the operation.
         """
-        token, user, authorized = MainController.verify_authentication_and_authorization('update_contract')
+        token, user, authorized = MainController.verify_authentication_and_authorization("update_contract")
         if authorized:
             try:
                 if user.department.name == "Commercial":
@@ -347,42 +341,36 @@ class MainController:
             return "You are not authorized to perform this action."
 
     @staticmethod
-    def update_collaborator(user_id: int, username: str = None, password: str = None, email: str = None, name: str = None, department_id: int = None) -> str:
-        """
-        Update an existing collaborator if the user is authorized.
-        Returns:
-            str: Message indicating the result of the operation.
-        """
-        token, user, authorized = MainController.verify_authentication_and_authorization('update_user')
-        if authorized:
-            try:
-                session = get_session_root()
-                if UserController.update_user(session, user_id, username, password, email, name, department_id):
-                    return "Collaborator updated successfully."
-                else:
-                    return "Failed to update collaborator. Please check the input data."
-            except ValueError as ve:
-                return f"Validation Error: {ve}"
-            except Exception as e:
-                sentry_sdk.capture_exception(e)
-                return f"Error updating collaborator: {e}"
-        else:
-            return "You are not authorized to perform this action."
-
-    @staticmethod
-    def create_event(contract_id: int, event_name: str, event_date_start: str,
-                    event_date_end: str, location: str, attendees: int, notes: str) -> str:
+    def create_event(
+        contract_id: int,
+        event_name: str,
+        event_date_start: str,
+        event_date_end: str,
+        location: str,
+        attendees: int,
+        notes: str,
+    ) -> str:
         """
         Create a new event if the user is authorized and the contract is signed.
         Returns:
             str: Message indicating the result of the operation.
         """
-        token, user, authorized = MainController.verify_authentication_and_authorization('create_event')
+        token, user, authorized = MainController.verify_authentication_and_authorization("create_event")
         if authorized:
             try:
                 client_id = ContractController.get_client_id_by_contract_id(contract_id)
                 support_contact_id = None  # Initially set to None until a support contact is assigned
-                success = EventController.create_event(contract_id, client_id, event_name, event_date_start, event_date_end, support_contact_id, location, attendees, notes)
+                success = EventController.create_event(
+                    contract_id,
+                    client_id,
+                    event_name,
+                    event_date_start,
+                    event_date_end,
+                    support_contact_id,
+                    location,
+                    attendees,
+                    notes,
+                )
                 if success:
                     return "Event created successfully."
                 else:
@@ -395,27 +383,52 @@ class MainController:
         else:
             return "You are not authorized to perform this action."
 
-
     @staticmethod
-    def update_event(event_id: int, contract_id: int = None, client_id: int = None, event_name: str = None,
-                     event_date_start: str = None, event_date_end: str = None, support_contact_id: int = None,
-                     location: str = None, attendees: int = None, notes: str = None) -> str:
+    def update_event(
+        event_id: int,
+        contract_id: int = None,
+        client_id: int = None,
+        event_name: str = None,
+        event_date_start: str = None,
+        event_date_end: str = None,
+        support_contact_id: int = None,
+        location: str = None,
+        attendees: int = None,
+        notes: str = None,
+    ) -> str:
         """
         Update an existing event if the user is authorized.
         Returns:
             str: Message indicating the result of the operation.
         """
-        token, user, authorized_support = MainController.verify_authentication_and_authorization('update_event')
-        token_gestion, user_gestion, authorized_gestion = MainController.verify_authentication_and_authorization('update_event_support_contact')
+        token, user, authorized_support = MainController.verify_authentication_and_authorization("update_event")
+        token_gestion, user_gestion, authorized_gestion = MainController.verify_authentication_and_authorization(
+            "update_event_support_contact"
+        )
 
         if authorized_support or authorized_gestion:
             try:
                 if authorized_gestion and support_contact_id is not None:
                     # If Gestion department, update support_contact_id
-                    success = EventController.update_event(token_gestion, user_gestion, event_id, support_contact_id=support_contact_id)
+                    success = EventController.update_event(
+                        token_gestion, user_gestion, event_id, support_contact_id=support_contact_id
+                    )
                 elif authorized_support:
                     # If Support department, update all fields of the events they are responsible for.
-                    success = EventController.update_event(token, user, event_id, contract_id, client_id, event_name, event_date_start, event_date_end, support_contact_id, location, attendees, notes)
+                    success = EventController.update_event(
+                        token,
+                        user,
+                        event_id,
+                        contract_id,
+                        client_id,
+                        event_name,
+                        event_date_start,
+                        event_date_end,
+                        support_contact_id,
+                        location,
+                        attendees,
+                        notes,
+                    )
                 else:
                     return "You are not authorized to update events."
 
@@ -438,7 +451,7 @@ class MainController:
         Returns:
             str: Message indicating the result of the operation.
         """
-        token, user, authorized = MainController.verify_authentication_and_authorization('manage_users')
+        token, user, authorized = MainController.verify_authentication_and_authorization("manage_users")
         if authorized:
             try:
                 session = get_session_root()
@@ -453,13 +466,20 @@ class MainController:
             return "You are not authorized to perform this action."
 
     @staticmethod
-    def update_collaborator(user_id: int, username: str = None, password: str = None, email: str = None, name: str = None, department_id: int = None) -> str:
+    def update_collaborator(
+        user_id: int,
+        username: str = None,
+        password: str = None,
+        email: str = None,
+        name: str = None,
+        department_id: int = None,
+    ) -> str:
         """
         Update an existing collaborator if the user is authorized.
         Returns:
             str: Message indicating the result of the operation.
         """
-        token, user, authorized = MainController.verify_authentication_and_authorization('manage_users')
+        token, user, authorized = MainController.verify_authentication_and_authorization("manage_users")
         if authorized:
             try:
                 session = get_session_root()
@@ -482,7 +502,7 @@ class MainController:
         Returns:
             str: Message indicating the result of the operation.
         """
-        token, user, authorized = MainController.verify_authentication_and_authorization('manage_users')
+        token, user, authorized = MainController.verify_authentication_and_authorization("manage_users")
         if authorized:
             try:
                 session = get_session_root()
@@ -534,11 +554,11 @@ class MainController:
         Returns:
             list: List of filtered Event objects.
         """
-        token, user, authorized = MainController.verify_authentication_and_authorization('filter_events')
+        token, user, authorized = MainController.verify_authentication_and_authorization("filter_events")
         if authorized:
             try:
                 if user.department.name == "Support":
-                    filters['support_contact_id'] = user.id
+                    filters["support_contact_id"] = user.id
                 return EventController.get_filtered_events(filters)
             except Exception as e:
                 sentry_sdk.capture_exception(e)
@@ -553,12 +573,14 @@ class MainController:
         Returns:
             str: Message indicating the result of the operation.
         """
-        token, user, authorized = MainController.verify_authentication_and_authorization('create_client')
+        token, user, authorized = MainController.verify_authentication_and_authorization("create_client")
         if authorized:
             try:
                 commercial_contact_id = user.id
                 date_created = date.today()
-                success = ClientController.create_client(full_name, email, phone, company_name, date_created, commercial_contact_id)
+                success = ClientController.create_client(
+                    full_name, email, phone, company_name, date_created, commercial_contact_id
+                )
                 if success:
                     return "Client created successfully."
                 else:
@@ -572,13 +594,15 @@ class MainController:
             return "You are not authorized to perform this action."
 
     @staticmethod
-    def update_client(client_id: int, full_name: str = None, email: str = None, phone: str = None, company_name: str = None) -> str:
+    def update_client(
+        client_id: int, full_name: str = None, email: str = None, phone: str = None, company_name: str = None
+    ) -> str:
         """
         Update an existing client if the user is authorized.
         Returns:
             str: Message indicating the result of the operation.
         """
-        token, user, authorized = MainController.verify_authentication_and_authorization('update_client')
+        token, user, authorized = MainController.verify_authentication_and_authorization("update_client")
         if authorized:
             try:
                 success = ClientController.update_client(client_id, full_name, email, phone, company_name)
@@ -603,7 +627,7 @@ class MainController:
         Returns:
             list: List of filtered Contract objects.
         """
-        token, user, authorized = MainController.verify_authentication_and_authorization('filter_contracts')
+        token, user, authorized = MainController.verify_authentication_and_authorization("filter_contracts")
         if authorized:
             try:
                 return ContractController.get_filtered_contracts(filters)
@@ -619,4 +643,5 @@ class MainController:
         Starts the CLI.
         """
         from views.main_views import start_cli
+
         start_cli()

@@ -19,15 +19,16 @@ class Event(Base):
         attendees (int): Number of attendees for the event.
         notes (str): Additional notes for the event.
     """
-    __tablename__ = 'Event'
+
+    __tablename__ = "Event"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    contract_id = Column(Integer, ForeignKey('Contract.id', ondelete='CASCADE'), nullable=False)
-    client_id = Column(Integer, ForeignKey('Client.id', ondelete='CASCADE'), nullable=True)
+    contract_id = Column(Integer, ForeignKey("Contract.id", ondelete="CASCADE"), nullable=False)
+    client_id = Column(Integer, ForeignKey("Client.id", ondelete="CASCADE"), nullable=True)
     event_name = Column(String(100), nullable=False)
     event_date_start = Column(DateTime, nullable=False)
     event_date_end = Column(DateTime, nullable=False)
-    support_contact_id = Column(Integer, ForeignKey('User.id', ondelete='CASCADE'), nullable=True)
+    support_contact_id = Column(Integer, ForeignKey("User.id", ondelete="CASCADE"), nullable=True)
     location = Column(String(200), nullable=True)
     attendees = Column(Integer, nullable=True)
     notes = Column(Text, nullable=True)

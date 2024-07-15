@@ -11,7 +11,8 @@ class Department(Base):
         id (int): Unique identifier for the department.
         name (str): Name of the department.
     """
-    __tablename__ = 'Department'
+
+    __tablename__ = "Department"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), nullable=False)

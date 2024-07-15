@@ -30,7 +30,7 @@ class TestEvent(BaseTest):
             full_name="Get Events Test Client",
             email="geteventstestclient@example.com",
             phone="1234567890",
-            company_name="Get Events Company"
+            company_name="Get Events Company",
         )
         print("Create client result:", result)
         self.assertIn("Client created successfully.", result, "Failed to create client")
@@ -49,10 +49,7 @@ class TestEvent(BaseTest):
 
         # Create a new contract as management user
         result = MainController.create_contract(
-            client_id=client_id,
-            total_amount=11000.0,
-            amount_due=6000.0,
-            signed=True
+            client_id=client_id, total_amount=11000.0, amount_due=6000.0, signed=True
         )
         print("Create contract result:", result)
         self.assertIn("Contract created successfully.", result, "Failed to create contract")
@@ -77,7 +74,7 @@ class TestEvent(BaseTest):
             event_date_end="2024-07-02 12:00:00",
             location="Get Events Location",
             attendees=200,
-            notes="This is another test event"
+            notes="This is another test event",
         )
         print("Create event result:", result)
         self.assertIn("Event created successfully.", result, "Failed to create event")
@@ -103,7 +100,7 @@ class TestEvent(BaseTest):
             full_name="Update Event Test Client",
             email="updateeventtestclient@example.com",
             phone="1234567890",
-            company_name="Update Event Company"
+            company_name="Update Event Company",
         )
         print("Create client result:", result)
         self.assertIn("Client created successfully.", result, "Failed to create client")
@@ -122,10 +119,7 @@ class TestEvent(BaseTest):
 
         # Create a new contract as management user
         result = MainController.create_contract(
-            client_id=client_id,
-            total_amount=15000.0,
-            amount_due=8000.0,
-            signed=True
+            client_id=client_id, total_amount=15000.0, amount_due=8000.0, signed=True
         )
         print("Create contract result:", result)
         self.assertIn("Contract created successfully.", result, "Failed to create contract")
@@ -150,7 +144,7 @@ class TestEvent(BaseTest):
             event_date_end="2024-07-02 16:00:00",
             location="Update Event Location",
             attendees=150,
-            notes="This is a test event for updating"
+            notes="This is a test event for updating",
         )
         print("Create event result:", result)
         self.assertIn("Event created successfully.", result, "Failed to create event")
@@ -173,10 +167,7 @@ class TestEvent(BaseTest):
         support_user_id = support_user.id
 
         # Update the event to assign the support contact
-        update_result = MainController.update_event(
-            event_id=event_id,
-            support_contact_id=support_user_id
-        )
+        update_result = MainController.update_event(event_id=event_id, support_contact_id=support_user_id)
         print("Update event result:", update_result)
         self.assertIn("Event updated successfully.", update_result, "Failed to update event")
         self.session.commit()
@@ -187,7 +178,10 @@ class TestEvent(BaseTest):
         # Verify that the event was updated with the support contact
         updated_event = self.session.query(Event).filter_by(id=event_id).first()
         self.assertIsNotNone(updated_event.support_contact_id, "Support contact not assigned to the event")
-        self.assertEqual(updated_event.support_contact_id, support_user_id, "Incorrect support contact assigned to the event")
+        self.assertEqual(
+            updated_event.support_contact_id, support_user_id, "Incorrect support contact assigned to the event"
+        )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

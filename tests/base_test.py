@@ -15,7 +15,7 @@ class BaseTest(unittest.TestCase):
         """Set up before each test method."""
         # Use the test database
         MainController.set_use_test_database(True)
-        
+
         # Initialize the database
         db_initializer = DatabaseInitializer()
         db_initializer.initialize()

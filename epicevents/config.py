@@ -3,6 +3,7 @@ import os
 import sentry_sdk
 from sqlalchemy.ext.declarative import declarative_base
 
+
 def reload_environment():
     """
     Load environment variables
@@ -11,9 +12,10 @@ def reload_environment():
     for key in list(os.environ.keys()):
         if key in os.environ:
             del os.environ[key]
-    
+
     # Load environment variables from the .env file
     load_dotenv(find_dotenv())
+
 
 # Load environment variables
 reload_environment()
@@ -21,21 +23,23 @@ reload_environment()
 # Service name for keyring
 SERVICE_NAME = "EpicEvents"
 
+
 class Config:
     """
     Configuration class to load and provide access to database configuration variables.
     Attributes are loaded from environment variables.
     """
-    DB_NAME = os.getenv('DB_NAME')
-    DB_USER = os.getenv('DB_USER')
-    DB_PASSWORD = os.getenv('DB_PASSWORD')
-    DB_HOST = os.getenv('DB_HOST')
-    DB_PORT = os.getenv('DB_PORT')
 
-    TEST_DB_NAME = os.getenv('TEST_DB_NAME')
-    ADMIN_DB_USER = os.getenv('ADMIN_DB_USER')
-    ADMIN_DB_PASSWORD = os.getenv('ADMIN_DB_PASSWORD')
-    SENTRY_DSN = os.getenv('SENTRY_DSN')
+    DB_NAME = os.getenv("DB_NAME")
+    DB_USER = os.getenv("DB_USER")
+    DB_PASSWORD = os.getenv("DB_PASSWORD")
+    DB_HOST = os.getenv("DB_HOST")
+    DB_PORT = os.getenv("DB_PORT")
+
+    TEST_DB_NAME = os.getenv("TEST_DB_NAME")
+    ADMIN_DB_USER = os.getenv("ADMIN_DB_USER")
+    ADMIN_DB_PASSWORD = os.getenv("ADMIN_DB_PASSWORD")
+    SENTRY_DSN = os.getenv("SENTRY_DSN")
     USE_TEST_DATABASE = False  # Variable to control the use of test database
 
     @staticmethod
@@ -71,12 +75,19 @@ class Config:
         Validates that all required environment variables are set.
         """
         required_vars = [
-            'DB_NAME', 'DB_USER', 'DB_PASSWORD',
-            'DB_HOST', 'DB_PORT', 'ADMIN_DB_USER', 'ADMIN_DB_PASSWORD', 'SENTRY_DSN'
+            "DB_NAME",
+            "DB_USER",
+            "DB_PASSWORD",
+            "DB_HOST",
+            "DB_PORT",
+            "ADMIN_DB_USER",
+            "ADMIN_DB_PASSWORD",
+            "SENTRY_DSN",
         ]
         for var in required_vars:
             if not getattr(Config, var):
                 raise ValueError(f"The environment variable {var} is not set.")
+
 
 # Initialize Sentry
 sentry_sdk.init(dsn=Config.SENTRY_DSN, traces_sample_rate=1.0)

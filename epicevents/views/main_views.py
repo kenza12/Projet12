@@ -37,9 +37,9 @@ def initialize():
 
 
 @cli.command()
-@click.option('--username', prompt='Username', help='The username of the user')
-@click.option('--password', prompt=True, hide_input=True, help='The password of the user')
-@click.option('--test', is_flag=True, help='Use test database')
+@click.option("--username", prompt="Username", help="The username of the user")
+@click.option("--password", prompt=True, hide_input=True, help="The password of the user")
+@click.option("--test", is_flag=True, help="Use test database")
 def login(username, password, test):
     """
     Authenticate a user and generate JWT and refresh tokens.
@@ -60,7 +60,7 @@ def login(username, password, test):
 
 
 @cli.command()
-@click.option('--username', prompt='Username', help='The username of the user')
+@click.option("--username", prompt="Username", help="The username of the user")
 def refresh(username):
     """
     Refresh the JWT token using the refresh token.
@@ -78,18 +78,22 @@ def refresh(username):
 
 
 @cli.command()
-@click.option('--username', prompt='Username', help='The username of the user')
+@click.option("--username", prompt="Username", help="The username of the user")
 def check_token(username):
     """
     Check the token status and inform the user if it needs to be refreshed.
     """
     result = MainController.check_token_status(username)
     if result == "expired":
-        console.print("[bold red]Your session has expired. Please refresh your token by running `python epicevents/main.py refresh --username <username>`.[/bold red]")
+        console.print(
+            "[bold red]Your session has expired. Please refresh your token by running `python epicevents/main.py refresh --username <username>`.[/bold red]"
+        )
     elif result == "active":
         console.print("[bold green]Your session is active.[/bold green]")
     else:
-        console.print("[bold red]No valid token found. Please log in by running `python epicevents/main.py login`.[/bold red]")
+        console.print(
+            "[bold red]No valid token found. Please log in by running `python epicevents/main.py login`.[/bold red]"
+        )
 
 
 @cli.command()
@@ -112,12 +116,12 @@ def display_menu():
     """
     username = MainController.get_current_user()
     user_role = MainController.get_user_role(username)
-    
-    if user_role == 'Commercial':
+
+    if user_role == "Commercial":
         commercial_menu()
-    elif user_role == 'Support':
+    elif user_role == "Support":
         support_menu()
-    elif user_role == 'Gestion':
+    elif user_role == "Gestion":
         gestion_menu()
     else:
         console.print("[bold red]Unknown role. Cannot display menu.[/bold red]")
@@ -131,18 +135,18 @@ def commercial_menu():
         console.print("[bold blue]Commercial Menu[/bold blue]")
         console.print("1. Manage Clients\n2. Manage Contracts\n3. Manage Events\n4. List All\n5. Logout\n6. Quit")
         choice = input("Enter your choice: ")
-        if choice == '1':
+        if choice == "1":
             manage_clients()
-        elif choice == '2':
+        elif choice == "2":
             manage_contracts()
-        elif choice == '3':
+        elif choice == "3":
             manage_events_commercial()
-        elif choice == '4':
+        elif choice == "4":
             list_all()
-        elif choice == '5':
+        elif choice == "5":
             MainController.logout()
             return
-        elif choice == '6':
+        elif choice == "6":
             exit()
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")
@@ -156,14 +160,14 @@ def support_menu():
         console.print("[bold blue]Support Menu[/bold blue]")
         console.print("1. Manage Events\n2. List All\n3. Logout\n4. Quit")
         choice = input("Enter your choice: ")
-        if choice == '1':
+        if choice == "1":
             manage_events_support()
-        elif choice == '2':
+        elif choice == "2":
             list_all()
-        elif choice == '3':
+        elif choice == "3":
             MainController.logout()
             return
-        elif choice == '4':
+        elif choice == "4":
             exit()
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")
@@ -177,11 +181,11 @@ def manage_events_support():
         console.print("[bold blue]Support Event Management[/bold blue]")
         console.print("1. Filter Events\n2. Update Event\n3. Return to Main Menu")
         choice = input("Enter your choice: ")
-        if choice == '1':
+        if choice == "1":
             filter_events()
-        elif choice == '2':
+        elif choice == "2":
             update_event()
-        elif choice == '3':
+        elif choice == "3":
             return
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")
@@ -193,20 +197,22 @@ def gestion_menu():
     """
     while True:
         console.print("[bold blue]Gestion Menu[/bold blue]")
-        console.print("1. Manage Collaborators\n2. Manage Contracts\n3. Manage Events\n4. List All\n5. Logout\n6. Quit")
+        console.print(
+            "1. Manage Collaborators\n2. Manage Contracts\n3. Manage Events\n4. List All\n5. Logout\n6. Quit"
+        )
         choice = input("Enter your choice: ")
-        if choice == '1':
+        if choice == "1":
             manage_collaborators()
-        elif choice == '2':
+        elif choice == "2":
             manage_contracts()
-        elif choice == '3':
+        elif choice == "3":
             manage_events_gestion()
-        elif choice == '4':
+        elif choice == "4":
             list_all()
-        elif choice == '5':
+        elif choice == "5":
             MainController.logout()
             return
-        elif choice == '6':
+        elif choice == "6":
             exit()
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")
@@ -220,11 +226,11 @@ def manage_clients():
         console.print("[bold blue]Client Management[/bold blue]")
         console.print("1. Create Client\n2. Update Client\n3. Return to Main Menu")
         choice = input("Enter your choice: ")
-        if choice == '1':
+        if choice == "1":
             create_client()
-        elif choice == '2':
+        elif choice == "2":
             update_client()
-        elif choice == '3':
+        elif choice == "3":
             return
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")
@@ -236,7 +242,7 @@ def manage_contracts():
     """
     username = MainController.get_current_user()
     user_role = MainController.get_user_role(username)
-    
+
     while True:
         console.print("[bold blue]Contract Management[/bold blue]")
         if user_role == "Gestion":
@@ -244,17 +250,17 @@ def manage_contracts():
         elif user_role == "Commercial":
             console.print("1. Update Contract\n2. Filter Contracts\n3. Return to Main Menu")
         choice = input("Enter your choice: ")
-        if choice == '1':
+        if choice == "1":
             if user_role == "Gestion":
                 create_contract()
             elif user_role == "Commercial":
                 update_contract()
-        elif choice == '2':
+        elif choice == "2":
             if user_role == "Gestion":
                 update_contract()
             elif user_role == "Commercial":
                 filter_contracts()
-        elif choice == '3':
+        elif choice == "3":
             return
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")
@@ -268,9 +274,9 @@ def manage_events_commercial():
         console.print("[bold blue]Event Management[/bold blue]")
         console.print("1. Create Event\n2. Return to Main Menu")
         choice = input("Enter your choice: ")
-        if choice == '1':
+        if choice == "1":
             create_event_commercial()
-        elif choice == '2':
+        elif choice == "2":
             return
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")
@@ -284,11 +290,11 @@ def manage_events_gestion():
         console.print("[bold blue]Gestion Event Management[/bold blue]")
         console.print("1. Update Event Support Contact\n2. Filter Events\n3. Return to Main Menu")
         choice = input("Enter your choice: ")
-        if choice == '1':
+        if choice == "1":
             update_event()
-        elif choice == '2':
+        elif choice == "2":
             filter_events()
-        elif choice == '3':
+        elif choice == "3":
             return
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")
@@ -302,13 +308,13 @@ def manage_collaborators():
         console.print("[bold blue]Collaborator Management[/bold blue]")
         console.print("1. Create Collaborator\n2. Update Collaborator\n3. Delete Collaborator\n4. Return to Main Menu")
         choice = input("Enter your choice: ")
-        if choice == '1':
+        if choice == "1":
             create_collaborator()
-        elif choice == '2':
+        elif choice == "2":
             update_collaborator()
-        elif choice == '3':
+        elif choice == "3":
             delete_collaborator()
-        elif choice == '4':
+        elif choice == "4":
             return
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")
@@ -322,13 +328,13 @@ def list_all():
         console.print("[bold blue]List All[/bold blue]")
         console.print("1. List Clients\n2. List Contracts\n3. List Events\n4. Return to Main Menu")
         choice = input("Enter your choice: ")
-        if choice == '1':
+        if choice == "1":
             get_clients()
-        elif choice == '2':
+        elif choice == "2":
             get_contracts()
-        elif choice == '3':
+        elif choice == "3":
             get_events()
-        elif choice == '4':
+        elif choice == "4":
             return
         else:
             console.print("[bold red]Invalid choice. Please try again.[/bold red]")

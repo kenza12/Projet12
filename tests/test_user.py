@@ -28,7 +28,7 @@ class TestUser(BaseTest):
             password="password123",
             email="new_collaborator@example.com",
             name="New Collaborator",
-            department_id=department_id
+            department_id=department_id,
         )
         print("Create collaborator result:", result)
         self.assertIn("successfully", result, "Failed to create collaborator")
@@ -60,10 +60,14 @@ class TestUser(BaseTest):
             password="password123",
             email="commercial_collaborator@example.com",
             name="Commercial Collaborator",
-            department_id=department_id
+            department_id=department_id,
         )
         print("Create collaborator result:", result)
-        self.assertIn("You are not authorized to perform this action.", result, "Commercial user should not be authorized to create a collaborator")
+        self.assertIn(
+            "You are not authorized to perform this action.",
+            result,
+            "Commercial user should not be authorized to create a collaborator",
+        )
 
         # Verify that the collaborator was not created in the database
         collaborator = self.session.query(User).filter_by(email="commercial_collaborator@example.com").first()
@@ -85,13 +89,13 @@ class TestUser(BaseTest):
             password="password123",
             email="update_collaborator@example.com",
             name="Update Collaborator",
-            department_id=department_id
+            department_id=department_id,
         )
         self.session.commit()
 
         # Reopen session
         self.reopen_session()
-        
+
         # Verify that the collaborator was created
         collaborator = self.session.query(User).filter_by(email="update_collaborator@example.com").first()
         self.assertIsNotNone(collaborator, "Collaborator not found in the database")
@@ -102,7 +106,7 @@ class TestUser(BaseTest):
             user_id=collaborator_id,
             username="updated_collaborator",
             email="updated_collaborator@example.com",
-            name="Updated Collaborator"
+            name="Updated Collaborator",
         )
         print("Update collaborator result:", result)
         self.assertIn("successfully", result, "Failed to update collaborator")
@@ -134,7 +138,7 @@ class TestUser(BaseTest):
             password="password123",
             email="delete_collaborator@example.com",
             name="Delete Collaborator",
-            department_id=department_id
+            department_id=department_id,
         )
         self.session.commit()
 
@@ -175,7 +179,7 @@ class TestUser(BaseTest):
             password="password123",
             email="fail_delete_collaborator@example.com",
             name="Fail Delete Collaborator",
-            department_id=department_id
+            department_id=department_id,
         )
         self.session.commit()
 
@@ -193,12 +197,17 @@ class TestUser(BaseTest):
         # Attempt to delete the collaborator (should fail)
         result = MainController.delete_collaborator(collaborator_id)
         print("Delete collaborator result:", result)
-        self.assertIn("You are not authorized to perform this action.", result, "Commercial user should not be authorized to delete a collaborator")
+        self.assertIn(
+            "You are not authorized to perform this action.",
+            result,
+            "Commercial user should not be authorized to delete a collaborator",
+        )
         self.session.commit()
 
         # Verify that the collaborator was not deleted from the database
         collaborator = self.session.query(User).filter_by(id=collaborator_id).first()
         self.assertIsNotNone(collaborator, "Collaborator should still be found in the database")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

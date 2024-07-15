@@ -46,9 +46,13 @@ class DatabaseInitializer:
             db_name = Config.TEST_DB_NAME if Config.get_use_test_database() else Config.DB_NAME
             with self.engine.connect() as connection:
                 print("Creating user...")
-                create_user_sql = text(f"CREATE USER IF NOT EXISTS '{Config.DB_USER}'@'localhost' IDENTIFIED BY '{Config.DB_PASSWORD}'")
+                create_user_sql = text(
+                    f"CREATE USER IF NOT EXISTS '{Config.DB_USER}'@'localhost' IDENTIFIED BY '{Config.DB_PASSWORD}'"
+                )
                 connection.execute(create_user_sql)
-                connection.execute(text(f"GRANT SELECT, INSERT, UPDATE, DELETE ON {db_name}.* TO '{Config.DB_USER}'@'localhost'"))
+                connection.execute(
+                    text(f"GRANT SELECT, INSERT, UPDATE, DELETE ON {db_name}.* TO '{Config.DB_USER}'@'localhost'")
+                )
                 connection.execute(text("FLUSH PRIVILEGES"))
                 print("User created successfully.")
         except Exception as e:
@@ -79,12 +83,8 @@ class DatabaseInitializer:
             Session = sessionmaker(bind=engine_with_db)
             session = Session()
 
-            departments = {
-                1: "Commercial",
-                2: "Support",
-                3: "Gestion"
-            }
-            
+            departments = {1: "Commercial", 2: "Support", 3: "Gestion"}
+
             for dept_id, dept_name in departments.items():
                 existing_dept = session.query(Department).filter_by(id=dept_id).first()
                 if not existing_dept:

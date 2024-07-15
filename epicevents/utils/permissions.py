@@ -1,4 +1,3 @@
-
 from models.user import User
 import sentry_sdk
 

@@ -17,14 +17,27 @@ def create_contract():
         if not client_id:
             console.print("[bold red]Client not found.[/bold red]")
             return
-        
-        total_amount = DataValidator.prompt_and_validate("Total Amount: ", DataValidator.validate_float, "Total Amount")
+
+        total_amount = DataValidator.prompt_and_validate(
+            "Total Amount: ", DataValidator.validate_float, "Total Amount"
+        )
         console.print("[bold blue]If there is no amount due, enter 0.[/bold blue]")
-        amount_due = DataValidator.prompt_and_validate("Amount Due: ", lambda value: DataValidator.validate_float(value, "Amount Due", False, True))
-        signed = DataValidator.prompt_and_validate("Signed (True/False): ", DataValidator.validate_boolean, "Signed").lower() == 'true'
+        amount_due = DataValidator.prompt_and_validate(
+            "Amount Due: ", lambda value: DataValidator.validate_float(value, "Amount Due", False, True)
+        )
+        signed = (
+            DataValidator.prompt_and_validate(
+                "Signed (True/False): ", DataValidator.validate_boolean, "Signed"
+            ).lower()
+            == "true"
+        )
 
         result_message = MainController.create_contract(int(client_id), float(total_amount), float(amount_due), signed)
-        console.print(f"[bold green]{result_message}[/bold green]" if "successfully" in result_message else f"[bold red]{result_message}[/bold red]")
+        console.print(
+            f"[bold green]{result_message}[/bold green]"
+            if "successfully" in result_message
+            else f"[bold red]{result_message}[/bold red]"
+        )
     except ValueError as ve:
         console.print(f"[bold red]Input Error: {ve}[/bold red]")
     except Exception as e:
@@ -37,11 +50,23 @@ def update_contract():
     """
     try:
         contract_id = DataValidator.prompt_and_validate("Contract ID: ", DataValidator.validate_id, "Contract ID")
-        client_id = DataValidator.prompt_and_validate("Client ID (leave blank to skip): ", DataValidator.validate_id, "Client ID", allow_empty=True)
-        total_amount = DataValidator.prompt_and_validate("Total Amount (leave blank to skip): ", DataValidator.validate_float, "Total Amount", allow_empty=True)
-        amount_due = DataValidator.prompt_and_validate("Amount Due (leave blank to skip): ", DataValidator.validate_float, "Amount Due", allow_empty=True, positive=False)
-        signed_input = DataValidator.prompt_and_validate("Signed (True/False, leave blank to skip): ", DataValidator.validate_boolean, "Signed", allow_empty=True)
-        signed = signed_input.lower() == 'true' if signed_input else None
+        client_id = DataValidator.prompt_and_validate(
+            "Client ID (leave blank to skip): ", DataValidator.validate_id, "Client ID", allow_empty=True
+        )
+        total_amount = DataValidator.prompt_and_validate(
+            "Total Amount (leave blank to skip): ", DataValidator.validate_float, "Total Amount", allow_empty=True
+        )
+        amount_due = DataValidator.prompt_and_validate(
+            "Amount Due (leave blank to skip): ",
+            DataValidator.validate_float,
+            "Amount Due",
+            allow_empty=True,
+            positive=False,
+        )
+        signed_input = DataValidator.prompt_and_validate(
+            "Signed (True/False, leave blank to skip): ", DataValidator.validate_boolean, "Signed", allow_empty=True
+        )
+        signed = signed_input.lower() == "true" if signed_input else None
 
         update_data = {}
         if client_id:
@@ -54,7 +79,11 @@ def update_contract():
             update_data["signed"] = signed
 
         result_message = MainController.update_contract(contract_id, **update_data)
-        console.print(f"[bold green]{result_message}[/bold green]" if "successfully" in result_message else f"[bold red]{result_message}[/bold red]")
+        console.print(
+            f"[bold green]{result_message}[/bold green]"
+            if "successfully" in result_message
+            else f"[bold red]{result_message}[/bold red]"
+        )
     except ValueError as ve:
         console.print(f"[bold red]Input Error: {ve}[/bold red]")
     except Exception as e:
@@ -67,16 +96,19 @@ def get_contracts():
     """
     contracts = MainController.get_contracts()
     if contracts:
-        contract_data = [{
-            "Contract ID": contract.id,
-            "Client ID": contract.client_id,
-            "Commercial Contact ID": contract.commercial_contact_id,
-            "Total Amount": contract.total_amount,
-            "Amount Due": contract.amount_due,
-            "Date Created": contract.date_created,
-            "Signed": contract.signed
-        } for contract in contracts]
-        
+        contract_data = [
+            {
+                "Contract ID": contract.id,
+                "Client ID": contract.client_id,
+                "Commercial Contact ID": contract.commercial_contact_id,
+                "Total Amount": contract.total_amount,
+                "Amount Due": contract.amount_due,
+                "Date Created": contract.date_created,
+                "Signed": contract.signed,
+            }
+            for contract in contracts
+        ]
+
         print_table(contract_data, title="Contracts")
     else:
         console.print("[bold red]No contracts found or you are not authorized to view them.[/bold red]")
@@ -86,13 +118,13 @@ def filter_contracts():
     console.print("[bold blue]Filter Contracts[/bold blue]")
     console.print("1. Unsigned Contracts\n2. Unpaid Contracts\n3. Return to Main Menu")
     choice = input("Enter your choice: ")
-    
+
     filters = {}
-    if choice == '1':
-        filters['signed'] = False
-    elif choice == '2':
-        filters['unpaid'] = True
-    elif choice == '3':
+    if choice == "1":
+        filters["signed"] = False
+    elif choice == "2":
+        filters["unpaid"] = True
+    elif choice == "3":
         return
     else:
         console.print("[bold red]Invalid choice. Please try again.[/bold red]")
@@ -100,14 +132,17 @@ def filter_contracts():
 
     contracts = MainController.filter_contracts(filters)
     if contracts:
-        contract_data = [{
-            "Contract ID": contract.id,
-            "Client ID": contract.client_id,
-            "Total Amount": contract.total_amount,
-            "Amount Due": contract.amount_due,
-            "Signed": contract.signed
-        } for contract in contracts]
-        
+        contract_data = [
+            {
+                "Contract ID": contract.id,
+                "Client ID": contract.client_id,
+                "Total Amount": contract.total_amount,
+                "Amount Due": contract.amount_due,
+                "Signed": contract.signed,
+            }
+            for contract in contracts
+        ]
+
         print_table(contract_data, title="Filtered Contracts")
     else:
         console.print("[bold red]No contracts found matching the criteria.[/bold red]")

@@ -22,10 +22,7 @@ class TestClient(BaseTest):
 
         # Attempt to create a new client
         result = MainController.create_client(
-            full_name="Test Client 1",
-            email="testclient1@example.com",
-            phone="1234567890",
-            company_name="Test Company"
+            full_name="Test Client 1", email="testclient1@example.com", phone="1234567890", company_name="Test Company"
         )
         print("Create client result:", result)
         self.assertIn("successfully", result, "Failed to create client")
@@ -49,13 +46,14 @@ class TestClient(BaseTest):
 
         # Attempt to create a new client (should fail)
         result = MainController.create_client(
-            full_name="Test Client 2",
-            email="testclient2@example.com",
-            phone="1234567890",
-            company_name="Test Company"
+            full_name="Test Client 2", email="testclient2@example.com", phone="1234567890", company_name="Test Company"
         )
         print("Create client result:", result)
-        self.assertEqual(result, "You are not authorized to perform this action.", "Support user should not be authorized to create a client")
+        self.assertEqual(
+            result,
+            "You are not authorized to perform this action.",
+            "Support user should not be authorized to create a client",
+        )
 
         # Commit the transaction and close the session to ensure data is saved
         self.session.commit()
@@ -76,7 +74,7 @@ class TestClient(BaseTest):
             full_name="Existing Client",
             email="existingclient@example.com",
             phone="1234567890",
-            company_name="Existing Company"
+            company_name="Existing Company",
         )
         self.session.commit()
 
@@ -91,7 +89,7 @@ class TestClient(BaseTest):
             full_name="Jane Doe",
             email="jane.doe@example.com",
             phone="0987654321",
-            company_name="Doe Enterprises"
+            company_name="Doe Enterprises",
         )
         print("Update client result:", result)
         self.assertEqual(result, "Client updated successfully.", "Failed to update client as commercial user")
@@ -119,7 +117,7 @@ class TestClient(BaseTest):
             full_name="Existing Client",
             email="anotherexistingclient@example.com",
             phone="1234567890",
-            company_name="Existing Company"
+            company_name="Existing Company",
         )
         self.session.commit()
 
@@ -137,10 +135,14 @@ class TestClient(BaseTest):
             full_name="Jane Doe",
             email="jane.doe2@example.com",
             phone="0987654321",
-            company_name="Doe Enterprises"
+            company_name="Doe Enterprises",
         )
         print("Update client result:", result)
-        self.assertEqual(result, "You are not authorized to perform this action.", "Support user should not be authorized to update a client")
+        self.assertEqual(
+            result,
+            "You are not authorized to perform this action.",
+            "Support user should not be authorized to update a client",
+        )
 
         # Commit the transaction and close the session to ensure data is saved
         self.session.commit()
@@ -161,78 +163,79 @@ class TestClient(BaseTest):
         python_path = sys.executable
 
         # Ajouter le répertoire racine du projet à PYTHONPATH
-        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-        os.environ['PYTHONPATH'] = project_root
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        os.environ["PYTHONPATH"] = project_root
 
         # Démarrer le processus interactif
         print("Starting the interactive process...")
-        child = pexpect.spawn(f'{python_path} epicevents/main.py login --test', encoding='utf-8')
+        child = pexpect.spawn(f"{python_path} epicevents/main.py login --test", encoding="utf-8")
 
         # Activer le journal de débogage
         child.logfile = sys.stdout
 
         # Attendez l'invite de commande pour l'authentification et authentifiez-vous
         print("Expecting 'Username:' prompt...")
-        child.expect('Username:')
+        child.expect("Username:")
         print("Sending username...")
         child.sendline(os.getenv("USER1_USERNAME"))
-        
+
         print("Expecting 'Password:' prompt...")
-        child.expect('Password:')
+        child.expect("Password:")
         print("Sending password...")
         child.sendline(os.getenv("USER1_PASSWORD"))
 
         # Attendez que l'utilisateur soit authentifié
         print("Expecting 'Authentication successful' message...")
-        child.expect('Authentication successful', timeout=10)
+        child.expect("Authentication successful", timeout=10)
 
         # Sélectionnez l'option pour gérer les clients
         print("Expecting 'Enter your choice:' prompt...")
-        child.expect('Enter your choice:', timeout=10)
+        child.expect("Enter your choice:", timeout=10)
         print("Sending choice '1' for managing clients...")
-        child.sendline('1')  # Choisir l'option pour gérer les clients
+        child.sendline("1")  # Choisir l'option pour gérer les clients
 
         # Sélectionnez l'option pour créer un client
         print("Expecting 'Enter your choice:' prompt...")
-        child.expect('Enter your choice:', timeout=10)
+        child.expect("Enter your choice:", timeout=10)
         print("Sending choice '1' for creating a client...")
-        child.sendline('1')  # Choisir l'option pour créer un client
+        child.sendline("1")  # Choisir l'option pour créer un client
 
         # Remplir les champs requis pour la création du client
         print("Expecting 'Full Name:' prompt...")
-        child.expect('Full Name:', timeout=10)
+        child.expect("Full Name:", timeout=10)
         print("Sending full name...")
-        child.sendline('Test Client Interaction')
-        
+        child.sendline("Test Client Interaction")
+
         print("Expecting 'Email:' prompt...")
-        child.expect('Email:', timeout=10)
+        child.expect("Email:", timeout=10)
         print("Sending email...")
-        child.sendline('interactionclient@example.com')
-        
+        child.sendline("interactionclient@example.com")
+
         print("Expecting 'Phone:' prompt...")
-        child.expect('Phone:', timeout=10)
+        child.expect("Phone:", timeout=10)
         print("Sending phone number...")
-        child.sendline('1234567890')
-        
+        child.sendline("1234567890")
+
         print("Expecting 'Company Name:' prompt...")
-        child.expect('Company Name:', timeout=10)
+        child.expect("Company Name:", timeout=10)
         print("Sending company name...")
-        child.sendline('Interaction Company')
+        child.sendline("Interaction Company")
 
         # Attendez le résultat de la création du client
         print("Expecting 'Client created successfully.' message...")
-        child.expect('Client created successfully.', timeout=10)
+        child.expect("Client created successfully.", timeout=10)
 
         # Vérifiez que le client a été créé dans la base de données
         print("Verifying client creation in the database...")
         self.session.commit()
         self.reopen_session()
-        
-        client = self.session.query(Client).filter_by(email='interactionclient@example.com').first()
+
+        client = self.session.query(Client).filter_by(email="interactionclient@example.com").first()
         self.assertIsNotNone(client, "Client not found in the database")
         self.assertEqual(client.full_name, "Test Client Interaction")
         self.assertEqual(client.phone, "1234567890")
         self.assertEqual(client.company_name, "Interaction Company")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

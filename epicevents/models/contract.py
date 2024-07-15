@@ -16,11 +16,12 @@ class Contract(Base):
         date_created (date): Date when the contract was created.
         signed (bool): Indicates whether the contract is signed.
     """
-    __tablename__ = 'Contract'
+
+    __tablename__ = "Contract"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    client_id = Column(Integer, ForeignKey('Client.id', ondelete='CASCADE'), nullable=True)
-    commercial_contact_id = Column(Integer, ForeignKey('User.id', ondelete='CASCADE'), nullable=True)
+    client_id = Column(Integer, ForeignKey("Client.id", ondelete="CASCADE"), nullable=True)
+    commercial_contact_id = Column(Integer, ForeignKey("User.id", ondelete="CASCADE"), nullable=True)
     total_amount = Column(Float, nullable=False)
     amount_due = Column(Float, nullable=False)
     date_created = Column(Date, nullable=False)

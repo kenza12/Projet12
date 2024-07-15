@@ -24,7 +24,7 @@ class TestContract(BaseTest):
             full_name="Commercial Test Client",
             email="commercialclient@example.com",
             phone="1234567890",
-            company_name="Commercial Company"
+            company_name="Commercial Company",
         )
         print("Create client result:", result)
         self.session.commit()
@@ -40,10 +40,7 @@ class TestContract(BaseTest):
 
         # Create a new contract
         result = MainController.create_contract(
-            client_id=client_id,
-            total_amount=5000.0,
-            amount_due=2500.0,
-            signed=True
+            client_id=client_id, total_amount=5000.0, amount_due=2500.0, signed=True
         )
         print("Create contract result:", result)
         self.assertIn("successfully", result, "Failed to create contract")
@@ -70,7 +67,7 @@ class TestContract(BaseTest):
             full_name="Commercial Update Client",
             email="commercialupdateclient@example.com",
             phone="1234567890",
-            company_name="Management Update Company"
+            company_name="Management Update Company",
         )
         print("Create client result:", result)
         self.assertIn("Client created successfully.", result, "Failed to create client")
@@ -89,10 +86,7 @@ class TestContract(BaseTest):
 
         # Create a new contract
         result = MainController.create_contract(
-            client_id=client_id,
-            total_amount=6000.0,
-            amount_due=3000.0,
-            signed=False
+            client_id=client_id, total_amount=6000.0, amount_due=3000.0, signed=False
         )
         print("Create contract result:", result)
         self.assertIn("Contract created successfully.", result, "Failed to create contract")
@@ -109,10 +103,7 @@ class TestContract(BaseTest):
         # Update the contract
         self.authenticate_user(os.getenv("USER3_USERNAME"), os.getenv("USER3_PASSWORD"))
         result = MainController.update_contract(
-            contract_id=contract_id,
-            total_amount=6500.0,
-            amount_due=3500.0,
-            signed=True
+            contract_id=contract_id, total_amount=6500.0, amount_due=3500.0, signed=True
         )
         print("Update contract result:", result)
         self.assertIn("Contract updated successfully.", result, "Failed to update contract")
@@ -139,7 +130,7 @@ class TestContract(BaseTest):
             full_name="Commercial Test Client",
             email="commercialclient_john@example.com",
             phone="1234567890",
-            company_name="Commercial Company"
+            company_name="Commercial Company",
         )
         print("Create client result:", result)
         self.assertIn("successfully", result, "Failed to create client")
@@ -152,13 +143,14 @@ class TestContract(BaseTest):
 
         # Attempt to create a new contract (should fail)
         result = MainController.create_contract(
-            client_id=client_id,
-            total_amount=7000.0,
-            amount_due=3500.0,
-            signed=True
+            client_id=client_id, total_amount=7000.0, amount_due=3500.0, signed=True
         )
         print("Create contract result:", result)
-        self.assertIn("You are not authorized to perform this action.", result, "Commercial user should not be authorized to create a contract")
+        self.assertIn(
+            "You are not authorized to perform this action.",
+            result,
+            "Commercial user should not be authorized to create a contract",
+        )
 
         # Verify that the contract was not created in the database
         contract = self.session.query(Contract).filter_by(client_id=client_id).first()
@@ -175,7 +167,7 @@ class TestContract(BaseTest):
             full_name="Commercial Update Client",
             email="commercialupdateclient@example.com",
             phone="1234567890",
-            company_name="Commercial Update Company"
+            company_name="Commercial Update Company",
         )
         print("Create client result:", result)
         self.assertIn("successfully", result, "Failed to create client")
@@ -194,10 +186,7 @@ class TestContract(BaseTest):
 
         # Create a new contract as management user
         result = MainController.create_contract(
-            client_id=client_id,
-            total_amount=8000.0,
-            amount_due=4000.0,
-            signed=False
+            client_id=client_id, total_amount=8000.0, amount_due=4000.0, signed=False
         )
         print("Create contract result:", result)
         self.assertIn("successfully", result, "Failed to create contract")
@@ -216,10 +205,7 @@ class TestContract(BaseTest):
 
         # Update the contract as the original commercial user
         result = MainController.update_contract(
-            contract_id=contract_id,
-            total_amount=8500.0,
-            amount_due=4500.0,
-            signed=True
+            contract_id=contract_id, total_amount=8500.0, amount_due=4500.0, signed=True
         )
         print("Update contract result:", result)
         self.assertIn("successfully", result, "Failed to update contract")
@@ -246,7 +232,7 @@ class TestContract(BaseTest):
             full_name="Test Client 3",
             email="testclient3@example.com",
             phone="1234567890",
-            company_name="Test Company 3"
+            company_name="Test Company 3",
         )
         print("Create client result:", result)
         self.assertIn("successfully", result, "Failed to create client")
@@ -265,10 +251,7 @@ class TestContract(BaseTest):
 
         # Create a new contract as management user
         result = MainController.create_contract(
-            client_id=client_id,
-            total_amount=8000.0,
-            amount_due=4000.0,
-            signed=False
+            client_id=client_id, total_amount=8000.0, amount_due=4000.0, signed=False
         )
         print("Create contract result:", result)
         self.assertIn("successfully", result, "Failed to create contract")
@@ -289,7 +272,7 @@ class TestContract(BaseTest):
             password="new_password",
             email="new_commercial@example.com",
             name="New Commercial",
-            department_id=department_id  # Use the correct department ID
+            department_id=department_id,  # Use the correct department ID
         )
         print("Create collaborator result:", result)
         self.assertIn("Collaborator created successfully.", result, "Failed to create collaborator")
@@ -300,13 +283,14 @@ class TestContract(BaseTest):
 
         # Update the contract as the second commercial user (should fail)
         result = MainController.update_contract(
-            contract_id=contract_id,
-            total_amount=8500.0,
-            amount_due=4500.0,
-            signed=True
+            contract_id=contract_id, total_amount=8500.0, amount_due=4500.0, signed=True
         )
         print("Update contract result:", result)
-        self.assertIn("You are not authorized to update this contract.", result, "Second commercial user should not be authorized to update a contract they are not responsible for")
+        self.assertIn(
+            "You are not authorized to update this contract.",
+            result,
+            "Second commercial user should not be authorized to update a contract they are not responsible for",
+        )
         self.session.commit()
 
         # Reopen session
@@ -330,7 +314,7 @@ class TestContract(BaseTest):
             full_name="Get Contracts Test Client",
             email="getcontractstestclient@example.com",
             phone="1234567890",
-            company_name="Get Contracts Company"
+            company_name="Get Contracts Company",
         )
         print("Create client result:", result)
         self.assertIn("successfully", result, "Failed to create client")
@@ -349,10 +333,7 @@ class TestContract(BaseTest):
 
         # Create a new contract as management user
         result = MainController.create_contract(
-            client_id=client_id,
-            total_amount=9000.0,
-            amount_due=5000.0,
-            signed=True
+            client_id=client_id, total_amount=9000.0, amount_due=5000.0, signed=True
         )
         print("Create contract result:", result)
         self.assertIn("successfully", result, "Failed to create contract")
@@ -373,7 +354,7 @@ class TestContract(BaseTest):
             full_name="Filter Contracts Test Client",
             email="filtercontractstestclient@example.com",
             phone="1234567890",
-            company_name="Filter Contracts Company"
+            company_name="Filter Contracts Company",
         )
         print("Create client result:", result)
         self.assertIn("Client created successfully.", result, "Failed to create client")
@@ -391,12 +372,7 @@ class TestContract(BaseTest):
         self.authenticate_user(os.getenv("USER3_USERNAME"), os.getenv("USER3_PASSWORD"))
 
         # Create a signed contract
-        result = MainController.create_contract(
-            client_id=client_id,
-            total_amount=5000.0,
-            amount_due=0.0,
-            signed=True
-        )
+        result = MainController.create_contract(client_id=client_id, total_amount=5000.0, amount_due=0.0, signed=True)
         print("Create signed contract result:", result)
         self.assertIn("Contract created successfully.", result, "Failed to create signed contract")
         self.session.commit()
@@ -404,10 +380,7 @@ class TestContract(BaseTest):
 
         # Create an unsigned contract
         result = MainController.create_contract(
-            client_id=client_id,
-            total_amount=6000.0,
-            amount_due=6000.0,
-            signed=False
+            client_id=client_id, total_amount=6000.0, amount_due=6000.0, signed=False
         )
         print("Create unsigned contract result:", result)
         self.assertIn("Contract created successfully.", result, "Failed to create unsigned contract")
@@ -416,10 +389,7 @@ class TestContract(BaseTest):
 
         # Create a partially paid contract
         result = MainController.create_contract(
-            client_id=client_id,
-            total_amount=7000.0,
-            amount_due=3500.0,
-            signed=True
+            client_id=client_id, total_amount=7000.0, amount_due=3500.0, signed=True
         )
         print("Create partially paid contract result:", result)
         self.assertIn("Contract created successfully.", result, "Failed to create partially paid contract")
@@ -431,7 +401,7 @@ class TestContract(BaseTest):
 
         # Filter unsigned contracts
         try:
-            filters = {'signed': False}
+            filters = {"signed": False}
             contracts = MainController.filter_contracts(filters)
             print("Unsigned contracts:", contracts)  # Log the contracts
             self.assertTrue(len(contracts) > 0, "No unsigned contracts found")
@@ -445,7 +415,7 @@ class TestContract(BaseTest):
 
         # Filter unpaid contracts
         try:
-            filters = {'unpaid': True}
+            filters = {"unpaid": True}
             contracts = MainController.filter_contracts(filters)
             print("Unpaid contracts:", contracts)  # Log the contracts
             self.assertTrue(len(contracts) > 0, "No unpaid contracts found")
@@ -454,5 +424,6 @@ class TestContract(BaseTest):
         except PermissionError as e:
             self.fail(f"Permission error: {e}")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
