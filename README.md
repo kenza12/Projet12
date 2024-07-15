@@ -1,6 +1,6 @@
 # EpicEvents
 
-This project involves setting up a MySQL database for a CRM application using SQLAlchemy in Python. The project includes scripts for creating the database, importing the necessary schema, and managing user authentication via JWT tokens
+EpicEvents is a CRM (Customer Relationship Management) application designed to manage clients, contracts, and events for a company. The application uses a MySQL database for data storage and SQLAlchemy in Python for database interactions. It includes features for creating and managing clients, contracts, and events, along with user authentication via JWT tokens.
 
 ## Prerequisites
 
