@@ -153,6 +153,9 @@ class MainController:
             if tokens and "refresh_token" in tokens and "key" in tokens:
                 refresh_token = tokens["refresh_token"]
                 key = tokens["key"]
+                if TokenManager.is_token_expired(refresh_token, key):
+                    print("Refresh token has expired")
+                    return None
                 new_token = TokenManager.refresh_token(refresh_token, key)
                 if new_token:
                     tokens["token"] = new_token

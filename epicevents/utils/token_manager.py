@@ -118,6 +118,7 @@ class TokenManager:
             sentry_sdk.capture_exception(e)
             return True
 
+    @staticmethod
     def refresh_token(refresh_token: str, key: str) -> str:
         """
         Refreshes the JWT token using the given refresh token.
