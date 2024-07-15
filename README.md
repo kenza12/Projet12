@@ -134,3 +134,65 @@ python epicevents/main.py logout
 ```
 
 This command logs out the current user by deleting the stored JWT token and associated data. This will effectively end the user's session.
+
+## User Menu
+
+Upon successful login, users are presented with a menu tailored to their department. Below is a detailed description of the menu options available for each department, the information required, and the actions performed by each option.
+
+**General Menu Options**
+
+These options are available in all department menus:
+
+- **List All**
+    - **List Clients:** Displays a list of all clients.
+    - **List Contracts:** Displays a list of all contracts.
+    - **List Events:** Displays a list of all events.
+    - **Return to Main Menu:** Returns to the main menu.
+
+- **Logout**
+        Logs out the current user and deletes the stored JWT token.
+
+- **Quit**
+        Exits the application.
+
+**Gestion Department Menu**
+
+- **Manage Collaborators**
+    - **Create Collaborator:** Prompts the user to enter collaborator details such as username, password, email, name, and department. Creates a new collaborator.
+    - **Update Collaborator:** Prompts the user to enter the collaborator ID and new details to update an existing collaborator.
+    - **Delete Collaborator:** Prompts the user to enter the collaborator ID to delete an existing collaborator.
+    - **Return to Main Menu:** Returns to the main menu.
+
+- **Manage Contracts**
+    - **Create Contract:** Prompts the user to enter contract details such as client name, total amount, amount due, and signed status. Creates a new contract.
+    - **Update Contract:** Prompts the user to enter the contract ID and new details to update an existing contract.
+    - **Return to Main Menu:** Returns to the main menu.
+
+- **Manage Events**
+    - **Update Event Support Contact:** Prompts the user to enter the event ID and new support contact details to update the support contact for an existing event.
+    - **Filter Events:** Allows the user to filter events based on criteria such as events with no support contact, by client, date range, location, or attendance.
+    - **Return to Main Menu:** Returns to the main menu.
+
+
+**Commercial Department Menu**
+
+- **Manage Clients**
+    - **Create Client:** Prompts the user to enter client details such as full name, email, phone, and company name. Creates a new client in the system.
+    - **Update Client:** Prompts the user to enter the client ID and new details to update an existing client. Only the commercial contact associated with the client can perform this action.
+    - **Return to Main Menu:** Returns to the main menu.
+
+- **Manage Contracts**
+    - **Update Contract:** Prompts the user to enter the contract ID and new details to update an existing contract. The user can update contracts for the clients they are responsible for.
+    - **Filter Contracts:** Allows the user to filter contracts based on criteria such as unsigned or unpaid contracts.
+    - **Return to Main Menu:** Returns to the main menu.
+
+- **Manage Events**
+    - **Create Event:** Prompts the user to enter event details such as contract ID, event name, start and end date, location, attendees, and notes. Creates an event for one of their clients who has signed a contract, if the user is authorized.
+    - **Return to Main Menu:** Returns to the main menu.
+
+**Support Department Menu**
+
+- **Manage Events**
+    - **Filter Events:** Allows the user to filter events based on criteria such as events assigned to the user, by client, date range, location, or attendance.
+    - **Update Event:** Prompts the user to enter the event ID and new details to update an existing event. Only the support contact associated with the event can perform this action.
+    - **Return to Main Menu:** Returns to the main menu.
