@@ -12,9 +12,10 @@ def reload_environment():
     for key in list(os.environ.keys()):
         if key in os.environ:
             del os.environ[key]
-    
+
     # Load environment variables from the .env file
     load_dotenv(find_dotenv())
+
 
 # Load environment variables
 reload_environment()
@@ -22,21 +23,32 @@ reload_environment()
 # Service name for keyring
 SERVICE_NAME = "EpicEvents"
 
+
 class Config:
     """
     Configuration class to load and provide access to database configuration variables.
     Attributes are loaded from environment variables.
     """
-    DB_NAME = os.getenv('DB_NAME')
-    DB_USER = os.getenv('DB_USER')
-    DB_PASSWORD = os.getenv('DB_PASSWORD')
-    DB_HOST = os.getenv('DB_HOST')
-    DB_PORT = os.getenv('DB_PORT')
 
-    TEST_DB_NAME = os.getenv('TEST_DB_NAME')
-    ADMIN_DB_USER = os.getenv('ADMIN_DB_USER')
-    ADMIN_DB_PASSWORD = os.getenv('ADMIN_DB_PASSWORD')
-    SENTRY_DSN = os.getenv('SENTRY_DSN')
+    DB_NAME = os.getenv("DB_NAME")
+    DB_USER = os.getenv("DB_USER")
+    DB_PASSWORD = os.getenv("DB_PASSWORD")
+    DB_HOST = os.getenv("DB_HOST")
+    DB_PORT = os.getenv("DB_PORT")
+
+    TEST_DB_NAME = os.getenv("TEST_DB_NAME")
+    ADMIN_DB_USER = os.getenv("ADMIN_DB_USER")
+    ADMIN_DB_PASSWORD = os.getenv("ADMIN_DB_PASSWORD")
+    SENTRY_DSN = os.getenv("SENTRY_DSN")
+    USE_TEST_DATABASE = False  # Variable to control the use of test database
+
+    @staticmethod
+    def set_use_test_database(value: bool):
+        Config.USE_TEST_DATABASE = value
+
+    @staticmethod
+    def get_use_test_database() -> bool:
+        return Config.USE_TEST_DATABASE
 
     @staticmethod
     def get_db_uri(user=None, password=None, test=False):
@@ -47,14 +59,14 @@ class Config:
         Args:
             user (str): The database user.
             password (str): The database user's password.
-            test (bool): Use test database if True.
+            test (bool): Flag to indicate if test database should be used.
 
         Returns:
             str: The constructed database URI.
         """
         user = user or Config.DB_USER
         password = password or Config.DB_PASSWORD
-        db_name = Config.TEST_DB_NAME if test else Config.DB_NAME
+        db_name = Config.TEST_DB_NAME if test or Config.get_use_test_database() else Config.DB_NAME
         return f"mysql+mysqlconnector://{user}:{password}@{Config.DB_HOST}:{Config.DB_PORT}/{db_name}"
 
     @staticmethod
@@ -63,12 +75,19 @@ class Config:
         Validates that all required environment variables are set.
         """
         required_vars = [
-            'DB_NAME', 'DB_USER', 'DB_PASSWORD',
-            'DB_HOST', 'DB_PORT', 'ADMIN_DB_USER', 'ADMIN_DB_PASSWORD', 'SENTRY_DSN'
+            "DB_NAME",
+            "DB_USER",
+            "DB_PASSWORD",
+            "DB_HOST",
+            "DB_PORT",
+            "ADMIN_DB_USER",
+            "ADMIN_DB_PASSWORD",
+            "SENTRY_DSN",
         ]
         for var in required_vars:
             if not getattr(Config, var):
                 raise ValueError(f"The environment variable {var} is not set.")
+
 
 # Initialize Sentry
 sentry_sdk.init(dsn=Config.SENTRY_DSN, traces_sample_rate=1.0)

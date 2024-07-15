@@ -3,14 +3,13 @@ import datetime
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError, InvalidSignatureError
 from models.user import User
 import sentry_sdk
-from config import Config
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
+from utils.session_manager import get_session_root
 import keyring
 import json
 from cryptography.fernet import Fernet
 
 SERVICE_NAME = "EpicEvents"
+
 
 class TokenManager:
     """
@@ -32,12 +31,12 @@ class TokenManager:
         try:
             secret_key = key.encode()
             payload = {
-                'user_id': user.id,
-                'username': user.username,
-                'department': user.department.name,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+                "user_id": user.id,
+                "username": user.username,
+                "department": user.department.name,
+                "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=30),
             }
-            token = jwt.encode(payload, secret_key, algorithm='HS256')
+            token = jwt.encode(payload, secret_key, algorithm="HS256")
             return token
         except Exception as e:
             sentry_sdk.capture_exception(e)
@@ -58,11 +57,11 @@ class TokenManager:
         try:
             secret_key = key.encode()
             payload = {
-                'user_id': user.id,
-                'username': user.username,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7)
+                "user_id": user.id,
+                "username": user.username,
+                "exp": datetime.datetime.utcnow() + datetime.timedelta(days=7),
             }
-            token = jwt.encode(payload, secret_key, algorithm='HS256')
+            token = jwt.encode(payload, secret_key, algorithm="HS256")
             return token
         except Exception as e:
             sentry_sdk.capture_exception(e)
@@ -82,7 +81,7 @@ class TokenManager:
         """
         try:
             secret_key = key.encode()
-            payload = jwt.decode(token, secret_key, algorithms=['HS256'])
+            payload = jwt.decode(token, secret_key, algorithms=["HS256"])
             return payload
         except ExpiredSignatureError as e:
             sentry_sdk.capture_exception(e)
@@ -111,7 +110,7 @@ class TokenManager:
         """
         try:
             secret_key = key.encode()
-            jwt.decode(token, secret_key, algorithms=['HS256'])
+            jwt.decode(token, secret_key, algorithms=["HS256"])
             return False
         except ExpiredSignatureError:
             return True
@@ -119,7 +118,6 @@ class TokenManager:
             sentry_sdk.capture_exception(e)
             return True
 
-    @staticmethod
     def refresh_token(refresh_token: str, key: str) -> str:
         """
         Refreshes the JWT token using the given refresh token.
@@ -132,21 +130,27 @@ class TokenManager:
             str: The newly generated JWT token.
         """
         try:
+            # Verify the refresh token first
             payload = TokenManager.verify_token(refresh_token, key)
-            user_id = payload['user_id']
-            
-            engine = create_engine(Config.get_db_uri(Config.ADMIN_DB_USER, Config.ADMIN_DB_PASSWORD))
-            Session = sessionmaker(bind=engine)
-            session = Session()
+            user_id = payload["user_id"]
+
+            session = get_session_root()
             user = session.query(User).filter_by(id=user_id).first()
-            
+
             if user:
+                # Check if the refresh token is expired
+                if TokenManager.is_token_expired(refresh_token, key):
+                    print("Refresh token has expired")
+                    raise InvalidTokenError("Refresh token has expired.")
+
+                # Generate a new token
                 new_token = TokenManager.generate_token(user, key)
                 return new_token
             else:
                 raise InvalidTokenError("User not found.")
         except Exception as e:
             sentry_sdk.capture_exception(e)
+            print(f"Failed to refresh token for user_id {user_id} with error: {e}")
             raise
 
     @staticmethod
@@ -159,7 +163,7 @@ class TokenManager:
             tokens (dict): A dictionary containing the JWT and refresh tokens.
         """
         try:
-            key = tokens['key']
+            key = tokens["key"]
 
             # Encrypt the tokens with the key
             fernet = Fernet(key.encode())
@@ -198,7 +202,7 @@ class TokenManager:
                 fernet = Fernet(key.encode())
                 decrypted_tokens = fernet.decrypt(encrypted_tokens.encode()).decode()
                 tokens = json.loads(decrypted_tokens)
-                tokens['key'] = key
+                tokens["key"] = key
 
                 print(f"Loaded tokens for {username}")
                 return tokens

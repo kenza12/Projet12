@@ -25,7 +25,7 @@ class ContractController:
         except Exception as e:
             sentry_sdk.capture_exception(e)
             return []
-    
+
     @staticmethod
     def get_contract_by_id(contract_id: int):
         """
@@ -42,7 +42,7 @@ class ContractController:
         except Exception as e:
             sentry_sdk.capture_exception(e)
             return None
-        
+
     @staticmethod
     def get_client_id_by_contract_id(contract_id: int) -> int:
         """
@@ -56,17 +56,29 @@ class ContractController:
         if contract:
             return contract.client_id
         return None
-    
+
     @staticmethod
-    def create_contract(client_id: int, commercial_contact_id: int, total_amount: float, amount_due: float,
-                        date_created: str, signed: bool) -> bool:
+    def create_contract(
+        client_id: int,
+        commercial_contact_id: int,
+        total_amount: float,
+        amount_due: float,
+        date_created: str,
+        signed: bool,
+    ) -> bool:
         """
         Creates a new contract if data is valid.
         """
         try:
             session = get_session()
-            contract = Contract(client_id=client_id, commercial_contact_id=commercial_contact_id, total_amount=total_amount,
-                                amount_due=amount_due, date_created=date_created, signed=signed)
+            contract = Contract(
+                client_id=client_id,
+                commercial_contact_id=commercial_contact_id,
+                total_amount=total_amount,
+                amount_due=amount_due,
+                date_created=date_created,
+                signed=signed,
+            )
             session.add(contract)
             session.commit()
             return True
@@ -80,7 +92,13 @@ class ContractController:
             return False
 
     @staticmethod
-    def update_contract(contract_id: int, client_id: int = None, total_amount: float = None, amount_due: float = None, signed: bool = None) -> bool:
+    def update_contract(
+        contract_id: int,
+        client_id: int = None,
+        total_amount: float = None,
+        amount_due: float = None,
+        signed: bool = None,
+    ) -> bool:
         """
         Updates an existing contract if data is valid.
         """
@@ -117,9 +135,9 @@ class ContractController:
         try:
             session = get_session()
             query = session.query(Contract)
-            if 'signed' in filters:
-                query = query.filter(Contract.signed == filters['signed'])
-            if 'unpaid' in filters:
+            if "signed" in filters:
+                query = query.filter(Contract.signed == filters["signed"])
+            if "unpaid" in filters:
                 query = query.filter(Contract.amount_due > 0)
             return query.all()
         except Exception as e:

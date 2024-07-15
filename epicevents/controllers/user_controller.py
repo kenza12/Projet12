@@ -9,6 +9,7 @@ class UserController:
     """
     Managing user-related operations, including password hashing, user creation, and user authentication.
     """
+
     ph = PasswordHasher()
 
     @staticmethod
@@ -42,7 +43,9 @@ class UserController:
         """
         try:
             hashed_password = UserController.hash_password(password)
-            user = User(username=username, password=hashed_password, email=email, name=name, department_id=department_id)
+            user = User(
+                username=username, password=hashed_password, email=email, name=name, department_id=department_id
+            )
             session.add(user)
             session.commit()
             return user
@@ -51,9 +54,16 @@ class UserController:
             session.rollback()
             raise
 
-
     @staticmethod
-    def update_user(session: Session, user_id: int, username: str = None, password: str = None, email: str = None, name: str = None, department_id: int = None) -> bool:
+    def update_user(
+        session: Session,
+        user_id: int,
+        username: str = None,
+        password: str = None,
+        email: str = None,
+        name: str = None,
+        department_id: int = None,
+    ) -> bool:
         """
         Updates an existing user in the database with the provided details.
 
@@ -181,7 +191,7 @@ class UserController:
         except Exception as e:
             sentry_sdk.capture_exception(e)
             return None
-        
+
     @staticmethod
     def user_exists(user_id: int) -> bool:
         """

@@ -5,6 +5,7 @@ from controllers.user_controller import UserController
 
 console = Console()
 
+
 class DataValidator:
     """
     Validates the input data before processing it in the database.
@@ -25,7 +26,7 @@ class DataValidator:
         """
         Validates the email format.
         """
-        email_regex = r'^\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+        email_regex = r"^\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"
         if not email or not re.match(email_regex, email):
             console.print("[bold red]Invalid email format.[/bold red]")
             return False
@@ -36,7 +37,7 @@ class DataValidator:
         """
         Validates the phone number format.
         """
-        phone_regex = r'^\+?[0-9\s]*$'
+        phone_regex = r"^\+?[0-9\s]*$"
         if not phone or not re.match(phone_regex, phone):
             console.print("[bold red]Invalid phone number format.[/bold red]")
             return False
@@ -56,7 +57,6 @@ class DataValidator:
         except ValueError:
             console.print(f"[bold red]{field_name} must be a valid integer.[/bold red]")
             return False
-
 
     @staticmethod
     def validate_attendees(value: str, field_name: str) -> bool:
@@ -107,16 +107,20 @@ class DataValidator:
             return False
 
     @staticmethod
-    def validate_float(value: str, field_name: str, positive: bool = True) -> bool:
+    def validate_float(value: str, field_name: str, positive: bool = True, allow_zero: bool = False) -> bool:
         """
-        Validates that a value is a float, optionally positive.
+        Validates that a value is a float, optionally positive and optionally allows zero.
         """
         try:
-            if positive and float(value) <= 0:
+            float_value = float(value)
+            if positive and float_value < 0:
                 console.print(f"[bold red]{field_name} must be a positive number.[/bold red]")
                 return False
-            elif not positive and float(value) < 0:
+            elif not positive and float_value < 0:
                 console.print(f"[bold red]{field_name} cannot be negative.[/bold red]")
+                return False
+            if not allow_zero and float_value == 0:
+                console.print(f"[bold red]{field_name} cannot be zero.[/bold red]")
                 return False
             return True
         except ValueError:
@@ -130,12 +134,12 @@ class DataValidator:
         Ensures the start date is not in the past and the end date is not before the start date.
         """
         try:
-            dt = datetime.strptime(datetime_text, '%Y-%m-%d %H:%M:%S')
+            dt = datetime.strptime(datetime_text, "%Y-%m-%d %H:%M:%S")
             if field_name == "Event Date Start" and dt < datetime.now():
                 console.print("[bold red]Event Date Start cannot be in the past.[/bold red]")
                 return False
             if field_name == "Event Date End" and start_datetime:
-                start_dt = datetime.strptime(start_datetime, '%Y-%m-%d %H:%M:%S')
+                start_dt = datetime.strptime(start_datetime, "%Y-%m-%d %H:%M:%S")
                 if dt < start_dt:
                     console.print("[bold red]Event Date End cannot be before Event Date Start.[/bold red]")
                     return False
@@ -149,13 +153,15 @@ class DataValidator:
         """
         Validates that the value is either 'true' or 'false'.
         """
-        if value.lower() in ['true', 'false']:
+        if value.lower() in ["true", "false"]:
             return True
         console.print(f"[bold red]{field_name} must be 'True' or 'False'.[/bold red]")
         return False
 
     @staticmethod
-    def prompt_and_validate(prompt: str, validator_func, field_name: str = None, allow_empty: bool = False, **kwargs) -> str:
+    def prompt_and_validate(
+        prompt: str, validator_func, field_name: str = None, allow_empty: bool = False, **kwargs
+    ) -> str:
         """
         Prompt the user for input and validate it using the specified validator function.
         """
