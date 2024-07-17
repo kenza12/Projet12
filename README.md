@@ -196,3 +196,15 @@ These options are available in all department menus:
     - **Filter Events:** Allows the user to filter events based on criteria such as events assigned to the user, by client, date range, location, or attendance.
     - **Update Event:** Prompts the user to enter the event ID and new details to update an existing event. Only the support contact associated with the event can perform this action.
     - **Return to Main Menu:** Returns to the main menu.
+
+## Running Tests
+
+To ensure that the application functions correctly, you can run the tests provided in the `tests/` directory using pytest. Execute the following command to run all tests with verbose output:
+
+```sh
+pytest -v tests/
+```
+
+A separate test database, `epicevents_test`, is used to isolate test operations from the production environment, ensuring data integrity and preventing test interference with actual data.
+
+Test coverage reports have been generated to evaluate the extent of code tested. These reports are available in the `tests/coverage/` directory and indicate that 60% of the code is covered by tests.
