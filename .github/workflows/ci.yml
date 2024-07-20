@@ -32,6 +32,18 @@ jobs:
           mysql version: '5.7'
           mysql root password: ${{ secrets.ADMIN_DB_PASSWORD }}
           mysql database: 'epicevents'
+          host port: '3306'
+          container port: '3306'
+
+      - name: Wait for MySQL to be ready
+        run: |
+          for i in {30..0}; do
+            if docker exec mysql mysqladmin ping -h "localhost" --silent; then
+              break
+            fi
+            echo 'MySQL still not ready, sleeping...'
+            sleep 1
+          done
 
       - name: Install dependencies on Ubuntu and macOS
         if: runner.os != 'windows-latest'
@@ -56,6 +68,12 @@ jobs:
         run: |
           pipenv run python epicevents/main.py --help
 
-      - name: Run tests
+      - name: Run tests on Ubuntu and macOS
+        if: runner.os != 'windows-latest'
+        run: |
+          pipenv run pytest -v tests/
+
+      - name: Run tests on Windows
+        if: runner.os == 'windows-latest'
         run: |
           pipenv run pytest -v tests/
