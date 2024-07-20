@@ -14,6 +14,19 @@ jobs:
   build:
     runs-on: ubuntu-latest # Utilise Ubuntu pour exécuter le job
 
+    services:
+      mysql:
+        image: mysql:5.7
+        options: > 
+          --health-cmd="mysqladmin ping -h 127.0.0.1" 
+          --health-interval=10s 
+          --health-timeout=5s 
+          --health-retries=3
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.ADMIN_DB_PASSWORD }}
+    
     # Définit les étapes du job
     steps:
       # Utilise l'action actions/checkout@v2 pour vérifier(cloner) le code du dépôt pour permettre aux étapes suivantes du workflow d'accéder au code source.
@@ -26,24 +39,25 @@ jobs:
         with:
           python-version: '3.11'
 
-      # Start MySQL on Ubuntu
-      - name: Install and start MySQL on Ubuntu
-        run: |
-          sudo apt-get update
-          sudo debconf-set-selections <<< "mysql-server mysql-server/root_password password ${{ secrets.ADMIN_DB_PASSWORD }}"
-          sudo debconf-set-selections <<< "mysql-server mysql-server/root_password_again password ${{ secrets.ADMIN_DB_PASSWORD }}"
-          sudo apt-get install -y mysql-server
-          sudo systemctl start mysql
-          sudo mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -e "ALTER USER 'root'@'127.0.0.1' IDENTIFIED WITH 'mysql_native_password' BY '${{ secrets.ADMIN_DB_PASSWORD }}';"
-          sudo mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -e "FLUSH PRIVILEGES;"
-          sudo mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -e "CREATE USER 'root'@'127.0.0.1' IDENTIFIED WITH 'mysql_native_password' BY '${{ secrets.ADMIN_DB_PASSWORD }}';"
-          sudo mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'127.0.0.1' WITH GRANT OPTION;"
-          sudo mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -e "FLUSH PRIVILEGES;"
-          sudo mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -h 127.0.0.1 -e "status"
-
-      # Check environment variable
-      - name: Check environment variable
+      # Print the secret password
+      - name: Print secret password
         run: echo "DB_PASSWORD is ${{ secrets.ADMIN_DB_PASSWORD }}"
+
+      # Wait for MySQL to be ready
+      - name: Wait for MySQL
+        run: |
+          until mysqladmin ping -h 127.0.0.1 --silent; do
+            echo "Waiting for MySQL to be ready..."
+            sleep 5
+          done
+
+      # Configure MySQL root user
+      - name: Configure MySQL
+        run: |
+          mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -h 127.0.0.1 -e "CREATE USER 'root'@'127.0.0.1' IDENTIFIED BY '${{ secrets.ADMIN_DB_PASSWORD }}';"
+          mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -h 127.0.0.1 -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'127.0.0.1' WITH GRANT OPTION;"
+          mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -h 127.0.0.1 -e "FLUSH PRIVILEGES;"
+          mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -h 127.0.0.1 -e "status"
 
       # Install dependencies on Ubuntu
       - name: Install dependencies on Ubuntu
