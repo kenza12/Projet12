@@ -26,24 +26,34 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Set up MySQL
-        uses: mirromutth/mysql-action@v1.1
-        with:
-          mysql version: '5.7'
-          mysql root password: ${{ secrets.ADMIN_DB_PASSWORD }}
-          mysql database: 'epicevents'
-          host port: '3306'
-          container port: '3306'
-
-      - name: Wait for MySQL to be ready
+      - name: Install MySQL on Ubuntu
+        if: runner.os == 'ubuntu-latest'
         run: |
-          for i in {30..0}; do
-            if docker exec mysql mysqladmin ping -h "localhost" --silent; then
-              break
-            fi
-            echo 'MySQL still not ready, sleeping...'
-            sleep 1
-          done
+          sudo apt-get update
+          sudo apt-get install -y mysql-server
+          sudo service mysql start
+          sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '${{ secrets.ADMIN_DB_PASSWORD }}';"
+          sudo mysql -e "FLUSH PRIVILEGES;"
+
+      - name: Install MySQL on macOS
+        if: runner.os == 'macos-latest'
+        run: |
+          brew update
+          brew install mysql
+          brew services start mysql
+          mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '${{ secrets.ADMIN_DB_PASSWORD }}';"
+          mysql -u root -e "FLUSH PRIVILEGES;"
+
+      - name: Install MySQL on Windows
+        if: runner.os == 'windows-latest'
+        run: |
+          choco install mysql
+          Start-Service mysql
+          mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '${{ secrets.ADMIN_DB_PASSWORD }}';"
+          mysql -u root -e "FLUSH PRIVILEGES;"
+
+      - name: Check environment variable
+        run: echo "DB_PASSWORD is ${{ secrets.ADMIN_DB_PASSWORD }}"
 
       - name: Install dependencies on Ubuntu and macOS
         if: runner.os != 'windows-latest'
