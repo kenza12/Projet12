@@ -33,6 +33,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      # start mysql sur ubuntu
       - name: Install and start MySQL on Ubuntu
         if: runner.os == 'ubuntu-latest'
         run: |
