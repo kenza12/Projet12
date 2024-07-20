@@ -30,7 +30,7 @@ jobs:
         uses: mirromutth/mysql-action@v1.1
         with:
           mysql version: '5.7'
-          root password: ${{ secrets.ADMIN_DB_PASSWORD }}
+          mysql root password: ${{ secrets.ADMIN_DB_PASSWORD }}
           mysql database: 'epicevents'
 
       - name: Install dependencies on Ubuntu and macOS
