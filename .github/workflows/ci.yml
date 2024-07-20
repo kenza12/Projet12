@@ -53,7 +53,8 @@ jobs:
       # Recrée le fichier .env à partir du contenu stocké dans le secret ENV_FILE.
       - name: Create .env file from secret
         run: |
-          echo "${{ secrets.ENV_FILE }}" | tr '\n' '\n' > .env
+          cat .env 
+          echo -e "${{ secrets.ENV_FILE }}" > .env
 
       # Afficher le help de l'application
       - name: Show help for application
