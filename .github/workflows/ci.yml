@@ -21,7 +21,6 @@ jobs:
 
     services:
       mysql:
-        if: matrix.os == 'ubuntu-latest' || matrix.os == 'windows-latest'
         image: mysql:5.7
         env:
           MYSQL_ROOT_PASSWORD: ${{ secrets.ADMIN_DB_PASSWORD }}
@@ -40,6 +39,10 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+
+      # Print the secret password
+      - name: Print secret password
+        run: echo "DB_PASSWORD is ${{ secrets.ADMIN_DB_PASSWORD }}"
 
       # Start MySQL on macOS
       - name: Install and start MySQL on macOS
