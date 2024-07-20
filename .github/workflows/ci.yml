@@ -38,7 +38,7 @@ jobs:
           sudo systemctl stop mysql
           sudo mysqld_safe --skip-grant-tables &
           sleep 5
-          sudo mysql -u root -e "FLUSH PRIVILEGES; ALTER USER 'root'@'localhost' IDENTIFIED BY '${{ secrets.ADMIN_DB_PASSWORD }}';"
+          sudo mysql -u root -e "FLUSH PRIVILEGES; ALTER USER 'root'@'127.0.0.1' IDENTIFIED BY '${{ secrets.ADMIN_DB_PASSWORD }}';"
           sudo killall mysqld
           sleep 5
           sudo systemctl start mysql
