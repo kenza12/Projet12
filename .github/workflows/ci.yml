@@ -12,7 +12,13 @@ on:
 # Définit les jobs à exécuter: build (nom du job)
 jobs:
   build:
-    runs-on: ubuntu-latest # Utilise Ubuntu pour exécuter le job
+    runs-on: ${{ matrix.os }} # Utilise la matrice pour exécuter le job sur différents systèmes d'exploitation.
+
+    # Définit une matrice de jobs.
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ['3.11']
 
     services:
       mysql:
@@ -33,13 +39,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.11'
+          python-version: ${{ matrix.python-version }}
 
-      # Print the secret password
+      # Affiche le mot de passe secret
       - name: Print secret password
         run: echo "DB_PASSWORD is ${{ secrets.ADMIN_DB_PASSWORD }}"
 
-      # Wait for MySQL to be ready
+      # Attends que MySQL soit prêt
       - name: Wait for MySQL
         run: |
           until mysqladmin ping -h 127.0.0.1 --silent; do
@@ -47,7 +53,7 @@ jobs:
             sleep 5
           done
 
-      # Configure MySQL root user
+      # Configure l'utilisateur root de MySQL
       - name: Configure MySQL
         run: |
           mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -h 127.0.0.1 -e "CREATE USER 'root'@'127.0.0.1' IDENTIFIED BY '${{ secrets.ADMIN_DB_PASSWORD }}';"
@@ -55,8 +61,17 @@ jobs:
           mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -h 127.0.0.1 -e "FLUSH PRIVILEGES;"
           mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -h 127.0.0.1 -e "status"
 
-      # Install dependencies on Ubuntu
-      - name: Install dependencies on Ubuntu
+      # Installe les dépendances sur Ubuntu et macOS
+      - name: Install dependencies on Ubuntu and macOS
+        if: runner.os != 'windows-latest'
+        run: |
+          python -m pip install --upgrade pip
+          pip install pipenv
+          pipenv install
+
+      # Installe les dépendances sur Windows
+      - name: Install dependencies on Windows
+        if: runner.os == 'windows-latest'
         run: |
           python -m pip install --upgrade pip
           pip install pipenv
@@ -68,12 +83,19 @@ jobs:
           echo -e "${{ secrets.ENV_FILE }}" > .env
           cat .env
 
-      # Afficher le help de l'application
+      # Affiche l'aide de l'application
       - name: Show help for application
         run: |
           pipenv run python epicevents/main.py --help
 
-      # Exécute les tests sur Ubuntu
-      - name: Run tests on Ubuntu
+      # Exécute les tests sur Ubuntu et macOS
+      - name: Run tests on Ubuntu and macOS
+        if: runner.os != 'windows-latest'
+        run: |
+          pipenv run pytest -v tests/
+
+      # Exécute les tests sur Windows
+      - name: Run tests on Windows
+        if: runner.os == 'windows-latest'
         run: |
           pipenv run pytest -v tests/
