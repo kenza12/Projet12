@@ -14,7 +14,6 @@ jobs:
   build:
     runs-on: ${{ matrix.os }} # Utilise la matrice pour exécuter le job sur différents systèmes d'exploitation.
 
-    # Définit une matrice de jobs.
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -22,6 +21,7 @@ jobs:
 
     services:
       mysql:
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'windows-latest'
         image: mysql:5.7
         env:
           MYSQL_ROOT_PASSWORD: ${{ secrets.ADMIN_DB_PASSWORD }}
@@ -41,19 +41,27 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      # Affiche le mot de passe secret
-      - name: Print secret password
-        run: echo "DB_PASSWORD is ${{ secrets.ADMIN_DB_PASSWORD }}"
+      # Start MySQL on macOS
+      - name: Install and start MySQL on macOS
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew update
+          brew install mysql
+          brew services start mysql
+          mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '${{ secrets.ADMIN_DB_PASSWORD }}';"
+          mysql -u root -e "FLUSH PRIVILEGES;"
+          mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -e "status"
 
-      # Attends que MySQL soit prêt
+      # Wait for MySQL to be ready on Ubuntu and Windows
       - name: Wait for MySQL
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'windows-latest'
         run: |
           until mysqladmin ping -h 127.0.0.1 --silent; do
             echo "Waiting for MySQL to be ready..."
             sleep 5
           done
 
-      # Configure l'utilisateur root de MySQL
+      # Configure MySQL root user
       - name: Configure MySQL
         run: |
           mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -h 127.0.0.1 -e "CREATE USER 'root'@'127.0.0.1' IDENTIFIED BY '${{ secrets.ADMIN_DB_PASSWORD }}';"
@@ -61,17 +69,17 @@ jobs:
           mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -h 127.0.0.1 -e "FLUSH PRIVILEGES;"
           mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -h 127.0.0.1 -e "status"
 
-      # Installe les dépendances sur Ubuntu et macOS
+      # Install dependencies on Ubuntu and macOS
       - name: Install dependencies on Ubuntu and macOS
-        if: runner.os != 'windows-latest'
+        if: matrix.os != 'windows-latest'
         run: |
           python -m pip install --upgrade pip
           pip install pipenv
           pipenv install
 
-      # Installe les dépendances sur Windows
+      # Install dependencies on Windows
       - name: Install dependencies on Windows
-        if: runner.os == 'windows-latest'
+        if: matrix.os == 'windows-latest'
         run: |
           python -m pip install --upgrade pip
           pip install pipenv
@@ -83,19 +91,19 @@ jobs:
           echo -e "${{ secrets.ENV_FILE }}" > .env
           cat .env
 
-      # Affiche l'aide de l'application
+      # Afficher le help de l'application
       - name: Show help for application
         run: |
           pipenv run python epicevents/main.py --help
 
       # Exécute les tests sur Ubuntu et macOS
       - name: Run tests on Ubuntu and macOS
-        if: runner.os != 'windows-latest'
+        if: matrix.os != 'windows-latest'
         run: |
           pipenv run pytest -v tests/
 
       # Exécute les tests sur Windows
       - name: Run tests on Windows
-        if: runner.os == 'windows-latest'
+        if: matrix.os == 'windows-latest'
         run: |
           pipenv run pytest -v tests/
