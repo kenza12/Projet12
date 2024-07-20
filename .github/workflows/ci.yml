@@ -31,7 +31,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y mysql-server
-          sudo service mysql start
+          sudo /etc/init.d/mysql start
           sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '${{ secrets.ADMIN_DB_PASSWORD }}';"
           sudo mysql -e "FLUSH PRIVILEGES;"
 
@@ -40,7 +40,7 @@ jobs:
         run: |
           brew update
           brew install mysql
-          brew services start mysql
+          sudo /etc/init.d/mysql start
           mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '${{ secrets.ADMIN_DB_PASSWORD }}';"
           mysql -u root -e "FLUSH PRIVILEGES;"
 
