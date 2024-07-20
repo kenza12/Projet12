@@ -1,7 +1,7 @@
 # Nom du workflow
 name: CI
 
-# Déclencheur du workflow: Déclenche le workflow à chaque push sur la branche main ou à chaque PR vers la branche main. 
+# Déclencheur du workflow
 on:
   push:
     branches:
@@ -10,25 +10,19 @@ on:
     branches:
       - main
 
-# Définit les jobs à exécuter: build (nom du job)
 jobs:
   build:
-    runs-on: ${{ matrix.os }} # Utilise la matrice pour exécuter le job sur différents systèmes d'exploitation.
+    runs-on: ${{ matrix.os }}
 
-    # Définit une matrice de jobs.
     strategy:
-      #  Spécifie les combinaisons d'OS et de versions de Python.
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ['3.11']
 
-    # Définit les étapes du job
     steps:
-      # Utilise l'action actions/checkout@v2 pour vérifier(cloner) le code du dépôt pour permettre aux étapes suivants du workflow d'accéder au code source.
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Utilise l'action actions/setup-python@v2 pour configurer Python. Elle permet de s'assurer que la version de Python requise est installée et disponible pour les étapes suivantes du workflow.
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
@@ -42,6 +36,10 @@ jobs:
           sudo service mysql start
           sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '${{ secrets.ADMIN_DB_PASSWORD }}';"
           sudo mysql -e "FLUSH PRIVILEGES;"
+          while ! mysqladmin ping -h "127.0.0.1" --silent; do
+            echo 'Waiting for MySQL...'
+            sleep 2
+          done
 
       - name: Install MySQL on macOS
         if: runner.os == 'macos-latest'
@@ -51,6 +49,10 @@ jobs:
           brew services start mysql
           mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '${{ secrets.ADMIN_DB_PASSWORD }}';"
           mysql -u root -e "FLUSH PRIVILEGES;"
+          while ! mysqladmin ping -h "127.0.0.1" --silent; do
+            echo 'Waiting for MySQL...'
+            sleep 2
+          done
 
       - name: Install MySQL on Windows
         if: runner.os == 'windows-latest'
@@ -59,19 +61,11 @@ jobs:
           Start-Service mysql
           mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '${{ secrets.ADMIN_DB_PASSWORD }}';"
           mysql -u root -e "FLUSH PRIVILEGES;"
-
-      # Attends que MySQL soit accessible
-      - name: Wait for MySQL
-        run: |
-          for i in {30..0}; do
-            if mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -e 'select 1' > /dev/null 2>&1; then
-              break
-            fi
-            echo 'MySQL still not ready, sleeping...'
-            sleep 1
+          while ! mysqladmin ping -h "127.0.0.1" --silent; do
+            echo 'Waiting for MySQL...'
+            sleep 2
           done
 
-      # Installe les dépendances sur Ubuntu et macOS.
       - name: Install dependencies on Ubuntu and macOS
         if: runner.os != 'windows-latest'
         run: |
@@ -79,7 +73,6 @@ jobs:
           pip install pipenv
           pipenv install
 
-      # Installe les dépendances sur Windows.
       - name: Install dependencies on Windows
         if: runner.os == 'windows-latest'
         run: |
@@ -87,24 +80,20 @@ jobs:
           pip install pipenv
           pipenv install
 
-      # Recrée le fichier .env à partir du contenu stocké dans le secret ENV_FILE.
       - name: Create .env file from secret
         run: |
           echo -e "${{ secrets.ENV_FILE }}" > .env
           cat .env
 
-      # Afficher le help de l'application
       - name: Show help for application
         run: |
           pipenv run python epicevents/main.py --help
 
-      # Exécute les tests sur Ubuntu et mac OS
       - name: Run tests on Ubuntu and macOS
         if: runner.os != 'windows-latest'
         run: |
           pipenv run pytest -v tests/
 
-      # Exécute les tests sur windows
       - name: Run tests on Windows
         if: runner.os == 'windows-latest'
         run: |
