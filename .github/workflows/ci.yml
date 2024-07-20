@@ -28,7 +28,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      #Utilise l'action actions/setup-python@v2 pour configurer Python. Elle permet de s'assurer que la version de Python requise est installée et disponible pour les étapes suivantes du workflow.
+      # Utilise l'action actions/setup-python@v2 pour configurer Python. Elle permet de s'assurer que la version de Python requise est installée et disponible pour les étapes suivantes du workflow.
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
@@ -60,9 +60,20 @@ jobs:
           mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '${{ secrets.ADMIN_DB_PASSWORD }}';"
           mysql -u root -e "FLUSH PRIVILEGES;"
 
+      # Attends que MySQL soit accessible
+      - name: Wait for MySQL
+        run: |
+          for i in {30..0}; do
+            if mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -e 'select 1' > /dev/null 2>&1; then
+              break
+            fi
+            echo 'MySQL still not ready, sleeping...'
+            sleep 1
+          done
+
       # Installe les dépendances sur Ubuntu et macOS.
       - name: Install dependencies on Ubuntu and macOS
-        if: runner.os != 'Windows'
+        if: runner.os != 'windows-latest'
         run: |
           python -m pip install --upgrade pip
           pip install pipenv
@@ -70,7 +81,7 @@ jobs:
 
       # Installe les dépendances sur Windows.
       - name: Install dependencies on Windows
-        if: runner.os == 'Windows'
+        if: runner.os == 'windows-latest'
         run: |
           python -m pip install --upgrade pip
           pip install pipenv
@@ -89,12 +100,12 @@ jobs:
 
       # Exécute les tests sur Ubuntu et mac OS
       - name: Run tests on Ubuntu and macOS
-        if: runner.os != 'Windows'
+        if: runner.os != 'windows-latest'
         run: |
           pipenv run pytest -v tests/
 
       # Exécute les tests sur windows
       - name: Run tests on Windows
-        if: runner.os == 'Windows'
+        if: runner.os == 'windows-latest'
         run: |
           pipenv run pytest -v tests/
