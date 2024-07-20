@@ -26,7 +26,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install MySQL on Ubuntu
+      - name: Install and start MySQL on Ubuntu
         if: runner.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
@@ -34,23 +34,26 @@ jobs:
           sudo /etc/init.d/mysql start
           sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '${{ secrets.ADMIN_DB_PASSWORD }}';"
           sudo mysql -e "FLUSH PRIVILEGES;"
+          sudo mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -e "status"
 
-      - name: Install MySQL on macOS
+      - name: Install and start MySQL on macOS
         if: runner.os == 'macos-latest'
         run: |
           brew update
           brew install mysql
-          sudo /etc/init.d/mysql start
+          brew services start mysql
           mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '${{ secrets.ADMIN_DB_PASSWORD }}';"
           mysql -u root -e "FLUSH PRIVILEGES;"
+          mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -e "status"
 
-      - name: Install MySQL on Windows
+      - name: Install and start MySQL on Windows
         if: runner.os == 'windows-latest'
         run: |
           choco install mysql
           Start-Service mysql
           mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '${{ secrets.ADMIN_DB_PASSWORD }}';"
           mysql -u root -e "FLUSH PRIVILEGES;"
+          mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -e "status"
 
       - name: Check environment variable
         run: echo "DB_PASSWORD is ${{ secrets.ADMIN_DB_PASSWORD }}"
