@@ -32,7 +32,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y mysql-server
           sudo systemctl start mysql
-          sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '${{ secrets.ADMIN_DB_PASSWORD }}';"
+          sudo mysql -e "ALTER USER 'root'@'127.0.0.1' IDENTIFIED WITH 'mysql_native_password' BY '${{ secrets.ADMIN_DB_PASSWORD }}';"
           sudo mysql -e "FLUSH PRIVILEGES;"
           sudo mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -e "status"
 
