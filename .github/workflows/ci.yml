@@ -17,19 +17,19 @@ jobs:
     services:
       mysql:
         image: mysql:5.7
-        options: > 
-          --health-cmd="mysqladmin ping -h 127.0.0.1" 
-          --health-interval=10s 
-          --health-timeout=5s 
-          --health-retries=3
-        ports:
-          - 3306:3306
         env:
           MYSQL_ROOT_PASSWORD: ${{ secrets.ADMIN_DB_PASSWORD }}
-    
+        ports:
+          - '3306:3306'
+        options: >
+          --health-cmd="mysqladmin ping -h 127.0.0.1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
     # Définit les étapes du job
     steps:
-      # Utilise l'action actions/checkout@v2 pour vérifier(cloner) le code du dépôt pour permettre aux étapes suivantes du workflow d'accéder au code source.
+      # Utilise l'action actions/checkout@v2 pour vérifier (cloner) le code du dépôt pour permettre aux étapes suivantes du workflow d'accéder au code source.
       - name: Checkout code
         uses: actions/checkout@v2
 
