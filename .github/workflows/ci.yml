@@ -1,0 +1,73 @@
+# Nom du workflow
+name: CI
+
+# Déclencheur du workflow: Déclenche le workflow à chaque push sur la branche main ou à chaque PR vers la branche main. 
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+# Définit les jobs à exécuter: build (nom du job)
+jobs:
+  build:
+    runs-on: ${{ matrix.os }} # Utilise la matrice pour exécuter le job sur différents systèmes d'exploitation.
+
+    # Définit une matrice de jobs.
+    strategy:
+      #  Spécifie les combinaisons d'OS et de versions de Python.
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ['3.9']
+
+    # Définit les étapes du job
+    steps:
+      # Utilise l'action actions/checkout@v2 pour vérifier(cloner) le code du dépôt pour permettre aux étapes suivants du workflow d'accéder au code source.
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      #Utilise l'action actions/setup-python@v2 pour configurer Python. Elle permet de s'assurer que la version de Python requise est installée et disponible pour les étapes suivantes du workflow.
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # Installe les dépendances sur Ubuntu et macOS.
+      - name: Install dependencies on Ubuntu and macOS
+        if: runner.os != 'Windows'
+        run: |
+          python -m pip install --upgrade pip
+          pip install pipenv
+          pipenv install
+
+      # Installe les dépendances sur Windows.
+      - name: Install dependencies on Windows
+        if: runner.os == 'Windows'
+        run: |
+          python -m pip install --upgrade pip
+          pip install pipenv
+          pipenv install
+
+      # Recrée le fichier .env à partir du contenu stocké dans le secret ENV_FILE.
+      - name: Create .env file from secret
+        run: |
+          echo "${{ secrets.ENV_FILE }}" | tr '\n' '\n' > .env
+
+      # Afficher le help de l'application
+      - name: Show help for application
+        run: |
+          pipenv run python epicevents/main.py --help
+
+      # Exécute les tests sur Ubuntu et mac OS
+      - name: Run tests on Ubuntu and macOS
+        if: runner.os != 'Windows'
+        run: |
+          pipenv run pytest -v tests/
+
+      # Exécute les tests sur windows
+      - name: Run tests on Windows
+        if: runner.os == 'Windows'
+        run: |
+          pipenv run pytest -v tests/
