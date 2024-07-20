@@ -27,23 +27,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      #Utilise l'action actions/setup-python@v2 pour configurer Python. Elle permet de s'assurer que la version de Python requise est installée et disponible pour les étapes suivantes du workflow.
+      # Utilise l'action actions/setup-python@v2 pour configurer Python. Elle permet de s'assurer que la version de Python requise est installée et disponible pour les étapes suivantes du workflow.
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
 
-      # start mysql sur ubuntu
+      # Start MySQL on Ubuntu
       - name: Install and start MySQL on Ubuntu
         if: runner.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install -y mysql-server
-          sudo /etc/init.d/mysql start
+          sudo systemctl start mysql
           sudo mysql -e "ALTER USER 'root'@'127.0.0.1' IDENTIFIED WITH 'mysql_native_password' BY '${{ secrets.ADMIN_DB_PASSWORD }}';"
           sudo mysql -e "FLUSH PRIVILEGES;"
           sudo mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -e "status"
 
+      # Start MySQL on macOS
       - name: Install and start MySQL on macOS
         if: runner.os == 'macos-latest'
         run: |
@@ -54,6 +55,7 @@ jobs:
           mysql -u root -e "FLUSH PRIVILEGES;"
           mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -e "status"
 
+      # Start MySQL on Windows
       - name: Install and start MySQL on Windows
         if: runner.os == 'windows-latest'
         run: |
@@ -63,9 +65,11 @@ jobs:
           mysql -u root -e "FLUSH PRIVILEGES;"
           mysql -u root -p${{ secrets.ADMIN_DB_PASSWORD }} -e "status"
 
+      # Check environment variable
       - name: Check environment variable
         run: echo "DB_PASSWORD is ${{ secrets.ADMIN_DB_PASSWORD }}"
 
+      # Install dependencies on Ubuntu and macOS
       - name: Install dependencies on Ubuntu and macOS
         if: runner.os != 'windows-latest'
         run: |
@@ -73,6 +77,7 @@ jobs:
           pip install pipenv
           pipenv install
 
+      # Install dependencies on Windows
       - name: Install dependencies on Windows
         if: runner.os == 'windows-latest'
         run: |
@@ -80,20 +85,24 @@ jobs:
           pip install pipenv
           pipenv install
 
+      # Recrée le fichier .env à partir du contenu stocké dans le secret ENV_FILE.
       - name: Create .env file from secret
         run: |
           echo -e "${{ secrets.ENV_FILE }}" > .env
           cat .env
 
+      # Afficher le help de l'application
       - name: Show help for application
         run: |
           pipenv run python epicevents/main.py --help
 
+      # Exécute les tests sur Ubuntu et mac OS
       - name: Run tests on Ubuntu and macOS
         if: runner.os != 'windows-latest'
         run: |
           pipenv run pytest -v tests/
 
+      # Exécute les tests sur windows
       - name: Run tests on Windows
         if: runner.os == 'windows-latest'
         run: |
