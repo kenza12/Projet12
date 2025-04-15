@@ -74,3 +74,16 @@ jobs:
       - name: Run tests on Ubuntu
         run: |
           pipenv run pytest -v tests/
+
+      # Générer le rapport de couverture
+      - name: Run tests with coverage
+        run: |
+          pipenv install pytest-cov
+          pipenv run pytest --cov=epicevents --cov-report=xml
+
+      # Analyse SonarQube
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@v1.0.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
