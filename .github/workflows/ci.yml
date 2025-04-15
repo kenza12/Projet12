@@ -88,3 +88,4 @@ jobs:
           projectBaseDir: .
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_PYTHON_COVERAGE_REPORTS: coverage.xml
