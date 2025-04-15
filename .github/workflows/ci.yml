@@ -79,7 +79,7 @@ jobs:
       - name: Run tests with coverage
         run: |
           pipenv install pytest-cov
-          pipenv run pytest --cov=./epicevents --cov-report=xml:coverage.xml
+          pipenv run pytest --cov=epicevents --cov-report=xml:coverage.xml --cov-config=.coveragerc
 
       # Analyse SonarQube
       - name: SonarCloud Scan

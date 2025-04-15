@@ -1,0 +1,3 @@
+[run]
+source = epicevents
+relative_files = True
